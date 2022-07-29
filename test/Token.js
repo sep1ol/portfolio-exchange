@@ -120,9 +120,9 @@ describe('Token', () => {
         expect(event).to.nested.include({ event: 'Approval' })
 
         const args = event.args
-        expect(args._owner).to.equal(deployer)
-        expect(args._spender).to.equal(exchange)
-        expect(args._value).to.equal(amount)
+        expect(args._owner).to.be.equal(deployer)
+        expect(args._spender).to.be.equal(exchange)
+        expect(args._value).to.be.equal(amount)
       })
     })
 
@@ -131,6 +131,70 @@ describe('Token', () => {
         const invalidAddress = '0x0000000000000000000000000000000000000000'
         await expect(token.connect(signers[0]).approve(invalidAddress, amount))
           .to.be.reverted
+      })
+    })
+  })
+
+  describe('Delegated token transfers', () => {
+    let amount, result, transaction
+
+    beforeEach(async () => {
+      amount = valueInTokens('100')
+      transaction = await token.connect(signers[0]).approve(exchange, amount)
+      result = transaction.wait()
+    })
+
+    describe('Success', () => {
+      let deployerBefore, deployerAfter
+      let receiverBefore, receiverAfter
+      let allowanceBefore, allowanceAfter
+
+      beforeEach(async () => {
+        deployerBefore = await token.balanceOf(deployer)
+        receiverBefore = await token.balanceOf(receiver)
+        allowanceBefore = await token.allowance(deployer, exchange)
+
+        transaction = await token
+          // connect as the exchange
+          .connect(signers[2])
+          .transferFrom(deployer, receiver, amount)
+        result = await transaction.wait()
+
+        deployerAfter = await token.balanceOf(deployer)
+        receiverAfter = await token.balanceOf(receiver)
+        allowanceAfter = await token.allowance(deployer, exchange)
+      })
+
+      it('Transfers token balances', () => {
+        expect(deployerAfter).to.be.equal(deployerBefore.sub(amount))
+        expect(receiverAfter).to.be.equal(receiverBefore.add(amount))
+      })
+
+      it('Allowance changed after transfer', async () => {
+        expect(allowanceAfter).to.be.equal(allowanceBefore.sub(amount))
+      })
+
+      it('"Transfer" event is correct', async () => {
+        const event = (await result)['events'][0]
+        expect(event).to.be.an('object')
+        expect(event).to.nested.include({ event: 'Transfer' })
+
+        const args = event.args
+        expect(args._from).to.be.equal(deployer)
+        expect(args._to).to.be.equal(receiver)
+        expect(args._value).to.be.equal(amount)
+      })
+    })
+
+    describe('Failure', () => {
+      it('Rejects insufficient balances', async () => {
+        const invalidAmount = valueInTokens('100000000')
+
+        await expect(
+          token
+            .connect(signers[2])
+            .transferFrom(deployer, receiver, invalidAmount),
+        ).to.be.reverted
       })
     })
   })
