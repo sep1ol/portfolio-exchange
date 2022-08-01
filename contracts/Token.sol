@@ -43,8 +43,8 @@ contract Token {
         address _to,
         uint256 _value
     ) internal {
-        require( _to != address(0) );
-        require( balanceOf[_from] >= _value );
+        require( _to != address(0) ,"Sending tokens to account 0" );
+        require( balanceOf[_from] >= _value ,"Insufficient balance" );
 
         balanceOf[_from] = balanceOf[_from] - _value;
         balanceOf[_to] = balanceOf[_to] + _value;
@@ -53,7 +53,7 @@ contract Token {
     }
 
     function approve (address _spender, uint256 _value) public returns(bool success) {
-        require(_spender != address(0));
+        require(_spender != address(0), "[approve] Invalid address");
 
         allowance[msg.sender][_spender] = _value;
         
@@ -68,7 +68,7 @@ contract Token {
         public 
         returns (bool success) 
     {   
-        require( allowance[_from][msg.sender] >= _value );
+        require( allowance[_from][msg.sender] >= _value , "Insufficient allowance");
 
         _transfer(_from, _to, _value);
 

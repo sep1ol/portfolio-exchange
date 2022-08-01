@@ -2,22 +2,23 @@ const { expect } = require('chai')
 const { BigNumber } = require('ethers')
 const { ethers } = require('hardhat')
 
-const valueInTokens = (n) => {
+const tokens = (n) => {
   return ethers.utils.parseUnits(n.toString(), 'ether')
 }
 
-describe('Token', () => {
-  const tokenName = 'Sepcoin'
-  const symbol = 'SEP'
-  const totalSupply = valueInTokens('1000000')
+const TOKEN_NAME = 'Sepiol Token'
+const TOKEN_SYMBOL = 'SEP1OL'
+const TOTAL_SUPPLY = tokens('1000000')
+const NUMBER_OF_DECIMALS = 18
 
+describe('Token', () => {
   // to make variables available to this block...
   let token, amount, result
   let signers, deployer, receiver, exchange
 
   beforeEach(async () => {
     const contract = await ethers.getContractFactory('Token')
-    token = await contract.deploy(tokenName, symbol, totalSupply)
+    token = await contract.deploy(TOKEN_NAME, TOKEN_SYMBOL, TOTAL_SUPPLY)
 
     signers = await ethers.getSigners()
     deployer = signers[0].address
@@ -27,23 +28,23 @@ describe('Token', () => {
 
   describe('Deployment', () => {
     it('Correct name', async () => {
-      expect(await token.name()).to.equal(tokenName)
+      expect(await token.name()).to.equal(TOKEN_NAME)
     })
 
     it('Correct symbol', async () => {
-      expect(await token.symbol()).to.equal(symbol)
+      expect(await token.symbol()).to.equal(TOKEN_SYMBOL)
     })
 
     it('Correct number of decimals', async () => {
-      expect(await token.decimals()).to.equal(18)
+      expect(await token.decimals()).to.equal(NUMBER_OF_DECIMALS)
     })
 
     it('Correct total supply', async () => {
-      expect(await token.totalSupply()).to.equal(totalSupply)
+      expect(await token.totalSupply()).to.equal(TOTAL_SUPPLY)
     })
 
     it('Assigned total supply to deployer', async () => {
-      expect(await token.balanceOf(deployer)).to.equal(totalSupply)
+      expect(await token.balanceOf(deployer)).to.equal(TOTAL_SUPPLY)
     })
   })
 
@@ -56,7 +57,7 @@ describe('Token', () => {
         deployerBefore = await token.balanceOf(deployer)
         receiverBefore = await token.balanceOf(receiver)
 
-        amount = valueInTokens('100')
+        amount = tokens('100')
         let transaction = await token
           .connect(signers[0])
           .transfer(receiver, amount)
@@ -85,7 +86,7 @@ describe('Token', () => {
 
     describe('Failure', () => {
       it('Rejects insufficient balances', async () => {
-        const invalidAmount = valueInTokens('100000000')
+        const invalidAmount = tokens('100000000')
 
         await expect(
           token.connect(signers[0]).transfer(receiver, invalidAmount),
@@ -102,7 +103,7 @@ describe('Token', () => {
 
   describe('Approving tokens to third party', () => {
     beforeEach(async () => {
-      amount = valueInTokens('100')
+      amount = tokens('100')
       let transaction = await token
         .connect(signers[0])
         .approve(exchange, amount)
@@ -139,7 +140,7 @@ describe('Token', () => {
     let amount, result, transaction
 
     beforeEach(async () => {
-      amount = valueInTokens('100')
+      amount = tokens('100')
       transaction = await token.connect(signers[0]).approve(exchange, amount)
       result = transaction.wait()
     })
@@ -188,7 +189,7 @@ describe('Token', () => {
 
     describe('Failure', () => {
       it('Rejects insufficient balances', async () => {
-        const invalidAmount = valueInTokens('100000000')
+        const invalidAmount = tokens('100000000')
 
         await expect(
           token
