@@ -239,4 +239,66 @@ describe('Exchange', () => {
       })
     })
   })
+
+  describe('Order actions', () => {
+    let transaction, result, amount
+
+    beforeEach(async () => {
+      amount = tokens('500')
+
+      transaction = await token1
+        .connect(user1)
+        .approve(exchange.address, amount)
+      result = await transaction.wait()
+
+      transaction = await exchange
+        .connect(user1)
+        .depositToken(token1.address, amount)
+      result = await transaction.wait()
+
+      transaction = await exchange
+        .connect(user1)
+        .makeOrder(token2.address, tokens('100'), token1.address, tokens('100'))
+      result = await transaction.wait()
+    })
+
+    describe('Cancelling orders', async () => {
+      describe('Success', async () => {
+        beforeEach(async () => {
+          transaction = await exchange.connect(user1).cancelOrder(1)
+          result = await transaction.wait()
+        })
+
+        it('Updates cancelled orders', async () => {
+          expect(await exchange.orderCancelled(1)).to.equal(true)
+        })
+
+        it('"Cancel" event is correct', async () => {
+          const event = (await result).events[0]
+          expect(event).to.be.an('object')
+          expect(event).to.nested.include({ event: 'Cancel' })
+
+          const args = event.args
+          expect(args.id).to.equal(await exchange.orderCount())
+          expect(args.user).to.equal(user1.address)
+          expect(args._tokenGet).to.equal(token2.address)
+          expect(args._amountGet).to.equal(tokens('100'))
+          expect(args._tokenGive).to.equal(token1.address)
+          expect(args._amountGive).to.equal(tokens('100'))
+          expect(args.timestamp).to.at.least(1659393068)
+        })
+      })
+
+      describe('Failure', async () => {
+        it("Rejects invalid order id's", async () => {
+          let invalidNumber = 9999
+          await expect(exchange.connect(user1).cancelOrder(invalidNumber)).to.be
+            .reverted
+        })
+        it('Rejects cancel orders using another account', async () => {
+          await expect(exchange.connect(deployer).cancelOrder(1)).to.be.reverted
+        })
+      })
+    })
+  })
 })

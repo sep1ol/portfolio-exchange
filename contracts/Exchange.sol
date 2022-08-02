@@ -11,6 +11,7 @@ contract Exchange {
 
     mapping(address => mapping(address => uint256)) public tokens;
     mapping(uint256 => _Order) public orders;
+    mapping(uint256 => bool) public orderCancelled;
 
     event Deposit(
         address token, 
@@ -25,6 +26,13 @@ contract Exchange {
         uint256 balance
     );
     event Order(
+        uint256 id,
+        address user,
+        address _tokenGet, uint256 _amountGet, 
+        address _tokenGive, uint256 _amountGive,
+        uint256 timestamp
+    );
+    event Cancel(
         uint256 id,
         address user,
         address _tokenGet, uint256 _amountGet, 
@@ -79,5 +87,24 @@ contract Exchange {
         orders[orderCount] = _Order(orderCount, msg.sender, _tokenGet, _amountGet, _tokenGive, _amountGive, block.timestamp);
 
         emit Order(orderCount, msg.sender, _tokenGet, _amountGet, _tokenGive, _amountGive, block.timestamp);
+    }
+
+    function cancelOrder(uint256 _id) public {
+        _Order storage _order = orders[_id];
+
+        require(address(_order.user) == msg.sender);
+        require(_order.id == _id, "Unexisting ID");
+
+        orderCancelled[_id] = true;
+
+        emit Cancel(
+            _order.id, 
+            msg.sender, 
+            _order._tokenGet, 
+            _order._amountGet, 
+            _order._tokenGive, 
+            _order._amountGive, 
+            block.timestamp
+        );
     }
 }
