@@ -7,6 +7,8 @@ const tokens = (n) => {
 }
 
 const FEE_PERCENT = 10
+
+// Token settings
 const TOKENS = [
   {
     TOKEN_NAME: 'Sepiol Token',
@@ -14,8 +16,8 @@ const TOKENS = [
     TOTAL_SUPPLY: tokens('1000000'),
   },
   {
-    TOKEN_NAME: 'Fake Tether',
-    TOKEN_SYMBOL: 'fUSDT',
+    TOKEN_NAME: 'Mock Dogecoin',
+    TOKEN_SYMBOL: 'mDOGE',
     TOTAL_SUPPLY: tokens('1000000'),
   },
 ]
@@ -26,6 +28,7 @@ describe('Exchange', () => {
   let token1, token2
   let user1, user2
 
+  // Configs to start testing...
   beforeEach(async () => {
     const Exchange = await ethers.getContractFactory('Exchange')
     const Token = await ethers.getContractFactory('Token')
@@ -34,7 +37,10 @@ describe('Exchange', () => {
     deployer = signers[0]
     feeAccount = signers[1]
 
+    // Deploying the exchange smart contract 
     exchange = await Exchange.deploy(feeAccount.address, FEE_PERCENT)
+
+    // Deploying tokens
     token1 = await Token.deploy(
       TOKENS[0].TOKEN_NAME,
       TOKENS[0].TOKEN_SYMBOL,
@@ -45,11 +51,19 @@ describe('Exchange', () => {
       TOKENS[1].TOKEN_SYMBOL,
       TOKENS[1].TOTAL_SUPPLY,
     )
-
+    
+    // Creating user 1 and transfering token 1
     user1 = signers[2]
     let transaction = await token1
       .connect(deployer)
       .transfer(user1.address, tokens('800'))
+    await transaction.wait()
+
+    // Creating user 2 and transfering token 2
+    user2 = signers[3]
+    transaction = await token2
+      .connect(deployer)
+      .transfer(user2.address, tokens('800'))
     await transaction.wait()
   })
 
@@ -216,11 +230,11 @@ describe('Exchange', () => {
         const args = event.args
         expect(args.id).to.equal(await exchange.orderCount())
         expect(args.user).to.equal(user1.address)
-        expect(args._tokenGet).to.equal(token2.address)
-        expect(args._amountGet).to.equal(tokens('100'))
-        expect(args._tokenGive).to.equal(token1.address)
-        expect(args._amountGive).to.equal(tokens('100'))
-        expect(args.timestamp).to.at.least(1659393068)
+        expect(args.tokenGet).to.equal(token2.address)
+        expect(args.amountGet).to.equal(tokens('100'))
+        expect(args.tokenGive).to.equal(token1.address)
+        expect(args.amountGive).to.equal(tokens('100'))
+        expect(args.timestamp).to.at.least(1659639304)
       })
     })
     describe('Failure', async () => {
@@ -246,16 +260,27 @@ describe('Exchange', () => {
     beforeEach(async () => {
       amount = tokens('500')
 
+      // Approving and depositing token1 as user1 to the exchange
       transaction = await token1
         .connect(user1)
         .approve(exchange.address, amount)
       result = await transaction.wait()
-
       transaction = await exchange
         .connect(user1)
         .depositToken(token1.address, amount)
       result = await transaction.wait()
 
+      // Approving and depositing token2 as user2 to the exchange
+      transaction = await token2
+        .connect(user2)
+        .approve(exchange.address, amount)
+      result = await transaction.wait()
+      transaction = await exchange
+        .connect(user2)
+        .depositToken(token2.address, amount)
+      result = await transaction.wait()
+
+      // Creating order as user 1
       transaction = await exchange
         .connect(user1)
         .makeOrder(token2.address, tokens('100'), token1.address, tokens('100'))
@@ -281,11 +306,11 @@ describe('Exchange', () => {
           const args = event.args
           expect(args.id).to.equal(await exchange.orderCount())
           expect(args.user).to.equal(user1.address)
-          expect(args._tokenGet).to.equal(token2.address)
-          expect(args._amountGet).to.equal(tokens('100'))
-          expect(args._tokenGive).to.equal(token1.address)
-          expect(args._amountGive).to.equal(tokens('100'))
-          expect(args.timestamp).to.at.least(1659393068)
+          expect(args.tokenGet).to.equal(token2.address)
+          expect(args.amountGet).to.equal(tokens('100'))
+          expect(args.tokenGive).to.equal(token1.address)
+          expect(args.amountGive).to.equal(tokens('100'))
+          expect(args.timestamp).to.at.least(1659639304)
         })
       })
 
@@ -295,8 +320,68 @@ describe('Exchange', () => {
           await expect(exchange.connect(user1).cancelOrder(invalidNumber)).to.be
             .reverted
         })
-        it('Rejects cancel orders using another account', async () => {
+        it('Rejects unauthorized user', async () => {
           await expect(exchange.connect(deployer).cancelOrder(1)).to.be.reverted
+        })
+      })
+    })
+
+    describe('Filling orders', async () => {
+      describe('Success', async () => {
+        beforeEach(async () => {
+          transaction = await exchange.connect(user2).fillOrder(1)
+          result = await transaction.wait()
+        })
+
+        it('Executes the trade and charge fees', async () => {
+          // Checking balances for token 1 after order filled
+          expect(await exchange.balanceOf(token1.address,user1.address)).to.equal(tokens('400'))
+          expect(await exchange.balanceOf(token1.address,user2.address)).to.equal(tokens('100'))
+          expect(await exchange.balanceOf(token1.address,feeAccount.address)).to.equal(tokens('0'))
+
+          // Checking balances for token 2 after order filled
+          expect(await exchange.balanceOf(token2.address,user1.address)).to.equal(tokens('100'))
+          expect(await exchange.balanceOf(token2.address,user2.address)).to.equal(tokens('390'))
+          expect(await exchange.balanceOf(token2.address,feeAccount.address)).to.equal(tokens('10'))
+        })
+
+        it("Updates filled orders",async () => {
+          expect(await exchange.orderFilled(1)).to.equal(true)
+        })
+
+        it('"Trade" event is correct', async () => {
+          const event = (await result).events[0]
+          expect(event).to.be.an('object')
+          expect(event).to.nested.include({ event: 'Trade' })
+  
+          const args = event.args
+          expect(args.id).to.equal(await exchange.orderCount())
+          expect(args.user).to.equal(user2.address)
+          expect(args.tokenGet).to.equal(token2.address)
+          expect(args.amountGet).to.equal(tokens('100'))
+          expect(args.tokenGive).to.equal(token1.address)
+          expect(args.amountGive).to.equal(tokens('100'))
+          expect(args.creator).to.equal(user1.address)
+          expect(args.timestamp).to.at.least(1659639304)
+        })
+      })
+
+      describe('Failure', async () => {
+        it("Rejects invalid order ids",async () => {
+          let invalidNumber = 999;
+          await expect(exchange.connect(user2).fillOrder(invalidNumber)).to.be.reverted
+        })
+        it("Rejects already filled orders",async () => {
+          transaction = await exchange.connect(user2).fillOrder(1)
+          await transaction.wait()
+          
+          await expect(exchange.connect(user2).fillOrder(1)).to.be.reverted
+        })
+        it("Rejects canceled orders",async () => {
+          transaction = await exchange.connect(user1).cancelOrder(1)
+          await transaction.wait()
+
+          await expect(exchange.connect(user2).fillOrder(1)).to.be.reverted
         })
       })
     })
