@@ -1,24 +1,28 @@
-import { useState, useEffect } from "react";
-import { ethers } from "ethers";
-import config from "../config.json";
 import "../App.css";
-import { TOKEN_ABI } from "../abis/Token";
+import config from "../config.json";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+
+import {
+  loadProvider,
+  loadNetwork,
+  loadAccount,
+  loadToken,
+} from "../store/interactions";
 
 function App() {
-  const [acc, setAcc] = useState();
+  const dispatch = useDispatch();
 
   const loadBlockchainData = async () => {
-    const accounts = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
-    console.log(accounts);
+    const account = await loadAccount(dispatch);
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const { chainId } = await provider.getNetwork();
-    const token = new ethers.Contract(
+    const provider = loadProvider(dispatch);
+    const chainId = await loadNetwork(provider, dispatch);
+
+    const { symbol, token } = await loadToken(
       config[chainId].sep1ol.address,
-      TOKEN_ABI,
-      provider
+      provider,
+      dispatch
     );
   };
 
@@ -33,13 +37,10 @@ function App() {
       <main className="exchange grid">
         <section className="exchange__section--left grid">
           {/* Markets */}
-
           {/* Balance */}
-
           {/* Order */}
         </section>
         <section className="exchange__section--right grid">
-          {acc}
           {/* PriceChart */}
           {/* Transactions */}
           {/* Trades */}
