@@ -3,24 +3,49 @@ import config from "../config.json";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
+import Navbar from "./Navbar";
+
 import {
   loadProvider,
   loadNetwork,
   loadAccount,
-  loadToken,
+  loadTokens,
+  loadExchange,
 } from "../store/interactions";
 
 function App() {
   const dispatch = useDispatch();
 
   const loadBlockchainData = async () => {
-    const account = await loadAccount(dispatch);
-
+    // Connect Ethers to blockchain
     const provider = loadProvider(dispatch);
+
+    // Fetch network's chain ID
     const chainId = await loadNetwork(provider, dispatch);
 
-    const { symbol, token } = await loadToken(
-      config[chainId].sep1ol.address,
+    // Fetch account from Metamask when changed
+    window.ethereum.on("accountsChanged", () => {
+      loadAccount(provider, dispatch);
+    });
+
+    // Reload page when network changes
+    window.ethereum.on("chainChanged", () => {
+      window.location.reload();
+    });
+
+    // Fetch tokens' contracts and symbols
+    const SEPT = config[chainId].sep1ol.address;
+    const mETH = config[chainId].mETH.address;
+    const mUSDT = config[chainId].mUSDT.address;
+    const { contracts, symbols } = await loadTokens(
+      [SEPT, mETH, mUSDT],
+      provider,
+      dispatch
+    );
+
+    // Fetch Exchange's contract
+    const exchange = await loadExchange(
+      config[chainId].exchange.address,
       provider,
       dispatch
     );
@@ -32,7 +57,7 @@ function App() {
 
   return (
     <div>
-      {/* Navbar */}
+      <Navbar />
 
       <main className="exchange grid">
         <section className="exchange__section--left grid">
