@@ -45,23 +45,16 @@ export const loadNetwork = async (provider, dispatch) => {
 };
 
 export const loadTokens = async (addresses, provider, dispatch) => {
-  let contracts = [];
-  let symbols = [];
+  console.log(addresses);
+  // Loading token 1...
+  let token = new ethers.Contract(addresses[0], TOKEN_ABI, provider);
+  let symbol = await token.symbol();
+  dispatch({ type: `TOKEN_1_LOADED`, token, symbol });
 
-  for (let i = 0; i < addresses.length; i++) {
-    const token = new ethers.Contract(addresses[i], TOKEN_ABI, provider);
-    const symbol = await token.symbol();
-
-    dispatch({ type: `TOKEN_${i + 1}_LOADED`, token, symbol });
-
-    contracts.push(token);
-    symbols.push(symbol);
-  }
-
-  return {
-    contracts,
-    symbols,
-  };
+  // Loading token 2...
+  token = new ethers.Contract(addresses[1], TOKEN_ABI, provider);
+  symbol = await token.symbol();
+  dispatch({ type: `TOKEN_2_LOADED`, token, symbol });
 };
 
 export const loadExchange = async (address, provider, dispatch) => {

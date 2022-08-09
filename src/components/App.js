@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import Navbar from "./Navbar";
+import Markets from "./Markets";
 
 import {
   loadProvider,
@@ -36,12 +37,7 @@ function App() {
     // Fetch tokens' contracts and symbols
     const SEPT = config[chainId].sep1ol.address;
     const mETH = config[chainId].mETH.address;
-    const mUSDT = config[chainId].mUSDT.address;
-    const { contracts, symbols } = await loadTokens(
-      [SEPT, mETH, mUSDT],
-      provider,
-      dispatch
-    );
+    await loadTokens([SEPT, mETH], provider, dispatch);
 
     // Fetch Exchange's contract
     const exchange = await loadExchange(
@@ -61,7 +57,7 @@ function App() {
 
       <main className="exchange grid">
         <section className="exchange__section--left grid">
-          {/* Markets */}
+          <Markets />
           {/* Balance */}
           {/* Order */}
         </section>
