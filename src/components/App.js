@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 
 import Navbar from "./Navbar";
 import Markets from "./Markets";
+import Balance from "./Balance";
 
 import {
   loadProvider,
@@ -12,6 +13,7 @@ import {
   loadAccount,
   loadTokens,
   loadExchange,
+  subscribeToEvents,
 } from "../store/interactions";
 
 function App() {
@@ -45,6 +47,8 @@ function App() {
       provider,
       dispatch
     );
+
+    subscribeToEvents(exchange, dispatch);
   };
 
   useEffect(() => {
@@ -58,7 +62,7 @@ function App() {
       <main className="exchange grid">
         <section className="exchange__section--left grid">
           <Markets />
-          {/* Balance */}
+          <Balance />
           {/* Order */}
         </section>
         <section className="exchange__section--right grid">

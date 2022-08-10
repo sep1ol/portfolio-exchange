@@ -6,11 +6,9 @@ const Markets = () => {
   const dispatch = useDispatch();
 
   const chainId = useSelector((state) => state.provider.chainId);
-  const provider = useSelector((state) => state.provider.provider);
+  const provider = useSelector((state) => state.provider.connection);
 
   const marketHandler = async (e) => {
-    // FIX THIS, IT'S NOT UPDATING THE STATE WHENEVER WE CHANGE THE MARKETS. THERE IS AN ERROR ON CONSOLE POPPIN', TAKE A LOOK AT THAT FIRST AND GO FROM THERE.
-    // GOOD JOB SO FAR, YOU'VE WENT A LONG PATH TILL HERE!
     await loadTokens(
       [e.target.value.split(",")[0], e.target.value.split(",")[1]],
       provider,
