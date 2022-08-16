@@ -67,12 +67,6 @@ export const loadExchange = async (address, provider, dispatch) => {
   return exchange;
 };
 
-export const subscribeToEvents = (exchange, dispatch) => {
-  exchange.on("Deposit", (token, user, amount, balance, event) => {
-    dispatch({ type: "TRANSFER_SUCCESS", event });
-  });
-};
-
 export const loadBalances = async (exchange, tokens, account, dispatch) => {
   let balance = ethers.utils.formatEther(await tokens[0].balanceOf(account));
   dispatch({ type: "TOKEN_1_BALANCE_LOADED", balance });
@@ -89,6 +83,36 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
     await exchange.balanceOf(tokens[1].address, account)
   );
   dispatch({ type: "EXCHANGE_TOKEN_2_BALANCE_LOADED", balance });
+};
+
+//---------------------------------------------------
+// SUBCRIBING TO EVENTS ON BLOCKCHAIN
+
+export const subscribeToEvents = (exchange, dispatch) => {
+  exchange.on("Deposit", (token, user, amount, balance, event) => {
+    dispatch({ type: "TRANSFER_SUCCESS", event });
+  });
+
+  exchange.on("Withdraw", (token, user, amount, balance, event) => {
+    dispatch({ type: "TRANSFER_SUCCESS", event });
+  });
+
+  exchange.on(
+    "Order",
+    (
+      id,
+      user,
+      tokenGet,
+      amountGet,
+      tokenGive,
+      amountGive,
+      timestamp,
+      event
+    ) => {
+      const order = event.args;
+      dispatch({ type: "NEW_ORDER_SUCCESS", order, event });
+    }
+  );
 };
 
 //---------------------------------------------------
@@ -109,21 +133,92 @@ export const transferTokens = async (
 
   try {
     dispatch({ type: "TRANSFER_REQUEST" });
-    // Approving tokens...
-    transaction = await token
-      .connect(signer)
-      .approve(exchange.address, amountToTransfer);
-    await transaction.wait();
 
-    // Depositing tokens to exchange...
+    if (transferType === "Deposit") {
+      // Approving tokens...
+      transaction = await token
+        .connect(signer)
+        .approve(exchange.address, amountToTransfer);
+      await transaction.wait();
+
+      // Depositing tokens to exchange...
+      transaction = await exchange
+        .connect(signer)
+        .depositToken(token.address, amountToTransfer);
+      await transaction.wait();
+    } else if (transferType === "Withdraw") {
+      // Withdrawing tokens...
+      transaction = await exchange
+        .connect(signer)
+        .withdrawToken(token.address, amountToTransfer);
+      await transaction.wait();
+    }
+  } catch (error) {
+    console.error(error);
+    dispatch({ type: "TRANSFER_FAIL" });
+  }
+};
+
+//---------------------------------------------------
+// ORDERS (BUY & SELL)
+export const makeBuyOrder = async (
+  provider,
+  exchange,
+  tokens,
+  order,
+  dispatch
+) => {
+  let transaction;
+
+  const tokenGet = tokens[0].address;
+  const tokenGive = tokens[1].address;
+
+  const amountGet = ethers.utils.parseUnits(order.amount, 18);
+  const amountGive = ethers.utils.parseUnits(
+    (order.amount * order.price).toString(),
+    18
+  );
+
+  dispatch({ type: "NEW_ORDER_REQUEST" });
+  try {
+    const signer = await provider.getSigner();
     transaction = await exchange
       .connect(signer)
-      .depositToken(token.address, amountToTransfer);
+      .makeOrder(tokenGet, amountGet, tokenGive, amountGive);
     await transaction.wait();
-
-    dispatch({ type: "TRANSFER_SUCCESS" });
   } catch (error) {
-    console.log(error);
-    dispatch({ type: "TRANSFER_FAIL" });
+    console.error(error);
+    dispatch({ type: "NEW_ORDER_FAIL" });
+  }
+};
+
+export const makeSellOrder = async (
+  provider,
+  exchange,
+  tokens,
+  order,
+  dispatch
+) => {
+  let transaction;
+
+  const tokenGet = tokens[1].address;
+  const tokenGive = tokens[0].address;
+
+  const amountGive = ethers.utils.parseUnits(order.amount, 18);
+  const amountGet = ethers.utils.parseUnits(
+    (order.amount * order.price).toString(),
+    18
+  );
+
+  dispatch({ type: "NEW_ORDER_REQUEST" });
+  try {
+    const signer = await provider.getSigner();
+    transaction = await exchange
+      .connect(signer)
+      .makeOrder(tokenGet, amountGet, tokenGive, amountGive);
+    await transaction.wait();
+  } catch (error) {
+    console.error(error);
+    dispatch({ type: "NEW_ORDER_FAIL" });
   }
 };

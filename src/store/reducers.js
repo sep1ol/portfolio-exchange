@@ -71,6 +71,9 @@ const DEFAULT_EXCHANGE_STATE = {
   contract: {},
   balances: [],
   events: [],
+  allOrders: {
+    data: [],
+  },
   transaction: {
     transactionType: "",
     isPending: false,
@@ -128,6 +131,52 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           isError: true,
         },
         transferInProgress: false,
+        events: [action.event, ...state.events],
+      };
+    case "NEW_ORDER_REQUEST":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "New Order",
+          isPending: true,
+          isSuccessful: false,
+          isError: false,
+        },
+        events: [action.event, ...state.events],
+      };
+    case "NEW_ORDER_FAIL":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "New Order",
+          isPending: false,
+          isSuccessful: false,
+          isError: true,
+        },
+        events: [action.event, ...state.events],
+      };
+    case "NEW_ORDER_SUCCESS":
+      let data;
+      let index = state.allOrders.data.findIndex(
+        (order) => order.id === action.orderId
+      );
+      if (index === -1) {
+        data = [...state.allOrders.data, action.order];
+      } else {
+        data = state.allOrders.data;
+      }
+      return {
+        ...state,
+        allOrders: {
+          ...state.allOrders,
+          data,
+        },
+        transaction: {
+          transactionType: "New Order",
+          isPending: false,
+          isSuccessful: true,
+          isError: false,
+        },
         events: [action.event, ...state.events],
       };
     default:
