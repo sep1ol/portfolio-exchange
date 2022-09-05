@@ -11,6 +11,7 @@ import Order from "./Order";
 import OrderBook from "./OrderBook";
 import PriceChart from "./PriceChart";
 import Trades from "./Trades";
+import Transactions from "./Transactions";
 
 import {
   loadProvider,
@@ -75,7 +76,7 @@ function App() {
         </section>
         <section className="exchange__section--right grid">
           <PriceChart />
-          {/* Transactions */}
+          <Transactions />
           <Trades />
           <OrderBook />
         </section>
