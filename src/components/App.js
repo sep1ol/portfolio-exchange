@@ -2,12 +2,14 @@ import "../App.css";
 import config from "../config.json";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { ethers } from "ethers";
 
 import Navbar from "./Navbar";
 import Markets from "./Markets";
 import Balance from "./Balance";
 import Order from "./Order";
 import OrderBook from "./OrderBook";
+import PriceChart from "./PriceChart";
 
 import {
   loadProvider,
@@ -15,6 +17,7 @@ import {
   loadAccount,
   loadTokens,
   loadExchange,
+  loadAllOrders,
   subscribeToEvents,
 } from "../store/interactions";
 
@@ -50,6 +53,8 @@ function App() {
       dispatch
     );
 
+    loadAllOrders(provider, exchange, dispatch);
+
     subscribeToEvents(exchange, dispatch);
   };
 
@@ -68,7 +73,7 @@ function App() {
           <Order />
         </section>
         <section className="exchange__section--right grid">
-          {/* PriceChart */}
+          <PriceChart />
           {/* Transactions */}
           {/* Trades */}
           <OrderBook />

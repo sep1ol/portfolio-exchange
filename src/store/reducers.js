@@ -72,6 +72,15 @@ const DEFAULT_EXCHANGE_STATE = {
   balances: [],
   events: [],
   allOrders: {
+    loaded: false,
+    data: [],
+  },
+  filledOrders: {
+    loaded: false,
+    data: [],
+  },
+  cancelledOrders: {
+    loaded: false,
     data: [],
   },
   transaction: {
@@ -84,12 +93,42 @@ const DEFAULT_EXCHANGE_STATE = {
 };
 export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
   switch (action.type) {
+    //----------------------------------
+    // LOADING EXCHANGE
     case "EXCHANGE_LOADED":
       return {
         ...state,
         loaded: true,
         contract: action.exchange,
       };
+    //----------------------------------
+    // LOADING ORDERS
+    case "CANCELLED_ORDERS_LOADED":
+      return {
+        ...state,
+        cancelledOrders: {
+          loaded: true,
+          data: action.cancelledOrders,
+        },
+      };
+    case "FILLED_ORDERS_LOADED":
+      return {
+        ...state,
+        filledOrders: {
+          loaded: true,
+          data: action.filledOrders,
+        },
+      };
+    case "ALL_ORDERS_LOADED":
+      return {
+        ...state,
+        allOrders: {
+          loaded: true,
+          data: action.allOrders,
+        },
+      };
+    //----------------------------------
+    // LOADING TOKENS
     case "EXCHANGE_TOKEN_1_BALANCE_LOADED":
       return {
         ...state,
@@ -100,6 +139,8 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
         ...state,
         balances: [...state.balances, action.balance],
       };
+    //----------------------------------
+    // TRANSFER REQUESTS
     case "TRANSFER_REQUEST":
       return {
         ...state,
@@ -133,6 +174,8 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
         transferInProgress: false,
         events: [action.event, ...state.events],
       };
+    //----------------------------------
+    // ORDER REQUESTS
     case "NEW_ORDER_REQUEST":
       return {
         ...state,
@@ -158,7 +201,7 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
     case "NEW_ORDER_SUCCESS":
       let data;
       let index = state.allOrders.data.findIndex(
-        (order) => order.id === action.orderId
+        (order) => String(order.id) === String(action.orderId)
       );
       if (index === -1) {
         data = [...state.allOrders.data, action.order];

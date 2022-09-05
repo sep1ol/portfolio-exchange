@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { TOKEN_ABI } from "../abis/Token";
 import { EXCHANGE_ABI } from "../abis/Exchange";
 import { useDispatch } from "react-redux";
+import { exchange, provider } from "./reducers";
 
 //---------------------------------------------------
 // LOADING INFORMATION TO WEBSITE
@@ -83,6 +84,27 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
     await exchange.balanceOf(tokens[1].address, account)
   );
   dispatch({ type: "EXCHANGE_TOKEN_2_BALANCE_LOADED", balance });
+};
+
+//---------------------------------------------------
+// LOADING ALL ORDERS
+export const loadAllOrders = async (provider, exchange, dispatch) => {
+  const block = await provider.getBlockNumber();
+
+  // Fetch canceled orders
+  const cancelStream = await exchange.queryFilter("Cancel", 0, block);
+  const cancelledOrders = cancelStream.map((event) => event.args);
+  dispatch({ type: "CANCELLED_ORDERS_LOADED", cancelledOrders });
+
+  // Fetch filled orders
+  const tradeStream = await exchange.queryFilter("Trade", 0, block);
+  const filledOrders = tradeStream.map((event) => event.args);
+  dispatch({ type: "FILLED_ORDERS_LOADED", filledOrders });
+
+  // Fetch all orders
+  const orderStream = await exchange.queryFilter("Order", 0, block);
+  const allOrders = orderStream.map((event) => event.args);
+  dispatch({ type: "ALL_ORDERS_LOADED", allOrders });
 };
 
 //---------------------------------------------------
@@ -221,4 +243,8 @@ export const makeSellOrder = async (
     console.error(error);
     dispatch({ type: "NEW_ORDER_FAIL" });
   }
+};
+
+export const formatAmount = (amount) => {
+  return Number(ethers.utils.formatEther(String(amount)));
 };

@@ -1,5 +1,6 @@
 import dappLogo from "../assets/dapp.svg";
 import ethLogo from "../assets/eth.svg";
+import usdtLogo from "../assets/tether.svg";
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loadBalances, transferTokens } from "../store/interactions";
@@ -193,7 +194,10 @@ const Balance = () => {
           <p>
             <small>Token</small>
             <br />
-            <img src={ethLogo} alt="token logo" />
+            <img
+              src={symbols[1] === "mETH" ? ethLogo : usdtLogo}
+              alt="Token Logo"
+            />
             {symbols && symbols[1]}
           </p>
           <p>
