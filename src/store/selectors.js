@@ -59,6 +59,63 @@ const decorateOrder = (order, tokens) => {
 };
 
 // ------------------------------------------------------------------------------
+// FILLED ORDERS
+
+export const filledOrdersSelector = createSelector(
+  filledOrders,
+  tokens,
+  (orders, tokens) => {
+    if (!tokens[0] || !tokens[1]) {
+      return;
+    }
+
+    // Filter orders by selected tokens
+    orders = orders.filter(
+      (o) =>
+        o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address
+    );
+    orders = orders.filter(
+      (o) =>
+        o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address
+    );
+
+    // Step 1: sort orders by date ascending
+    orders = orders.sort((a, b) => a.timestamp - b.timestamp);
+
+    // Step 2: apply order colors (decorate orders)
+    orders = decorateFilledOrders(orders, tokens);
+
+    // Step 3: sort orders by time descending for UI
+    orders = orders.sort((a, b) => b.timestamp - a.timestamp);
+
+    return orders;
+  }
+);
+
+const decorateFilledOrders = (orders, tokens) => {
+  let previousOrder = orders[0];
+
+  return orders.map((order, index) => {
+    // Decorating each individual order
+    order = decorateOrder(order, tokens);
+    order = decorateFilledOrder(order, previousOrder);
+
+    previousOrder = order; // Update previous order once it's decorated
+
+    return order;
+  });
+};
+
+const decorateFilledOrder = (order, previousOrder) => {
+  let tokenPriceClass = GREEN; // Default: green color
+  if (previousOrder.tokenPrice > order.tokenPrice) {
+    tokenPriceClass = RED; // Turn color to red if previous price is higher
+  }
+
+  return { ...order, tokenPriceClass };
+};
+
+// ------------------------------------------------------------------------------
 // ORDER BOOK
 
 export const orderBookSelector = createSelector(
