@@ -9,8 +9,9 @@ const Alert = () => {
   const alertRef = useRef(null);
 
   const account = useSelector((state) => state.provider.account);
-  const events = useSelector(myEventsSelector);
   const network = useSelector((state) => state.provider.network);
+  const events = useSelector(myEventsSelector);
+  console.log("alert.js", events);
 
   const isPending = useSelector(
     (state) => state.exchange.transaction.isPending
@@ -25,11 +26,18 @@ const Alert = () => {
   };
 
   useEffect(() => {
-    if ((events || isPending || isError || isSuccessful) && account) {
+    if (
+      (isPending || isError || isSuccessful) &&
+      account &&
+      alertRef.current !== null
+    ) {
+      console.log(alertRef);
       alertRef.current.className = "alert";
     }
   }, [isPending, isSuccessful, isError, account, events]);
 
+  // TODO: Alert.js
+  // Problem when transaction is successful and we try
   return (
     <div>
       {isPending ? (

@@ -37,6 +37,7 @@ function App() {
     // Fetch account from Metamask when changed
     window.ethereum.on("accountsChanged", () => {
       loadAccount(provider, dispatch);
+      window.location.reload();
     });
 
     // Reload page when network changes

@@ -13,6 +13,7 @@ const wait = (seconds) => {
   const milliseconds = seconds * 1000;
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 };
+
 const printProgress = (msg) => {
   process.stdout.clearLine();
   process.stdout.cursorTo(0);
