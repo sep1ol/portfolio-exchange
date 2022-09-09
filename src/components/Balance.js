@@ -32,7 +32,7 @@ const Balance = () => {
     if (exchange && tokens && account) {
       loadBalances(exchange, tokens, account, dispatch);
     }
-  }, [exchange, tokens, account, transferInProgress]);
+  }, [exchange, tokens, account, transferInProgress, dispatch]);
 
   const amountHandler = (e, token) => {
     if (token.address === tokens[0].address) {
@@ -164,7 +164,12 @@ const Balance = () => {
                 }
           }
         >
-          <label htmlFor="token0">{symbols && symbols[0]} amount</label>
+          {symbols ? (
+            <label htmlFor="token0">{symbols[0]} amount</label>
+          ) : (
+            <label htmlFor="token0">2nd Token Amount</label>
+          )}
+
           {tokens ? (
             <input
               id="token0"
@@ -223,7 +228,12 @@ const Balance = () => {
                 }
           }
         >
-          <label htmlFor="token1">{symbols && symbols[1]} amount</label>
+          {symbols ? (
+            <label htmlFor="token1">{symbols[1]} amount</label>
+          ) : (
+            <label htmlFor="token1">2nd Token Amount</label>
+          )}
+
           {tokens ? (
             <input
               id="token1"

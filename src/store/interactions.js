@@ -132,7 +132,41 @@ export const subscribeToEvents = (exchange, dispatch) => {
       event
     ) => {
       const order = event.args;
-      dispatch({ type: "NEW_ORDER_SUCCESS", order, event });
+      dispatch({ type: "ORDER_CANCEL_SUCCESS", order, event });
+    }
+  );
+
+  exchange.on(
+    "Cancel",
+    (
+      id,
+      user,
+      tokenGet,
+      amountGet,
+      tokenGive,
+      amountGive,
+      timestamp,
+      event
+    ) => {
+      const order = event.args;
+      dispatch({ type: "TRANSFER_SUCCESS", order, event });
+    }
+  );
+  exchange.on(
+    "Trade",
+    (
+      id,
+      user,
+      tokenGet,
+      amountGet,
+      tokenGive,
+      amountGive,
+      creator,
+      timestamp,
+      event
+    ) => {
+      const order = event.args;
+      dispatch({ type: "ORDER_FILL_SUCCESS", order, event });
     }
   );
 };
@@ -245,6 +279,34 @@ export const makeSellOrder = async (
   }
 };
 
+//---------------------------------------------------
+// ORDERS (CANCEL & FILL)
+export const cancelOrder = async (provider, exchange, order, dispatch) => {
+  dispatch({ type: "ORDER_CANCEL_REQUEST" });
+
+  try {
+    const signer = await provider.getSigner();
+    const transaction = await exchange.connect(signer).cancelOrder(order.id);
+    await transaction.wait();
+  } catch (error) {
+    dispatch({ type: "ORDER_CANCEL_FAIL" });
+  }
+};
+
+export const fillOrder = async (provider, exchange, order, dispatch) => {
+  dispatch({ type: "ORDER_FILL_REQUEST" });
+
+  try {
+    const signer = await provider.getSigner();
+    const transaction = await exchange.connect(signer).fillOrder(order.id);
+    await transaction.wait();
+  } catch (error) {
+    dispatch({ type: "ORDER_FILL_FAIL" });
+  }
+};
+
+//---------------------------------------------------
+// UTILITIES
 export const formatAmount = (amount) => {
   return Number(ethers.utils.formatEther(String(amount)));
 };

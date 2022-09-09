@@ -1,16 +1,21 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   myOpenOrdersSelector,
-  myTransactionsSelector,
+  myFilledOrdersSelector,
 } from "../store/selectors";
+import { cancelOrder } from "../store/interactions";
 import sort from "../assets/sort.svg";
 import Banner from "./Banner";
 import { useEffect, useRef, useState } from "react";
 
 const Transactions = () => {
+  const dispatch = useDispatch();
+  const provider = useSelector((state) => state.provider.connection);
+  const exchange = useSelector((state) => state.exchange.contract);
   const symbols = useSelector((state) => state.tokens.symbols);
+
   const myOpenOrders = useSelector(myOpenOrdersSelector);
-  const myFilledOrders = useSelector(myTransactionsSelector);
+  const myFilledOrders = useSelector(myFilledOrdersSelector);
 
   const tradeRef = useRef(null);
   const orderRef = useRef(null);
@@ -29,10 +34,12 @@ const Transactions = () => {
         e.target.className = "tab tab--active";
         orderRef.current.className = "tab";
         setShowOrders(false);
-      } else {
-        console.log("[BUG] tabHandler: Transactions.js");
       }
     }
+  };
+
+  const cancelHandler = (order) => {
+    cancelOrder(provider, exchange, order, dispatch);
   };
 
   return (
@@ -62,10 +69,6 @@ const Transactions = () => {
               <thead>
                 <tr>
                   <th>
-                    Time
-                    <img src={sort} alt="Sort" />
-                  </th>
-                  <th>
                     {symbols && symbols[0]}
                     <img src={sort} alt="Sort" />
                   </th>
@@ -73,6 +76,7 @@ const Transactions = () => {
                     {symbols && symbols[0]}/{symbols && symbols[1]}
                     <img src={sort} alt="Sort" />
                   </th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -80,11 +84,18 @@ const Transactions = () => {
                   myOpenOrders.map((order, index) => {
                     return (
                       <tr key={index}>
-                        <td>{order.formattedTimestamp}</td>
                         <td style={{ color: `${order.orderTypeClass}` }}>
                           {order.token0Amount}
                         </td>
                         <td>{order.tokenPrice}</td>
+                        <td>
+                          <button
+                            onClick={() => cancelHandler(order)}
+                            className="button--sm"
+                          >
+                            Cancel
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -137,7 +148,8 @@ const Transactions = () => {
                     return (
                       <tr key={index}>
                         <td>{order.formattedTimestamp}</td>
-                        <td style={{ color: `${order.orderTypeClass}` }}>
+                        <td style={{ color: `${order.orderClass}` }}>
+                          {order.orderSign}
                           {order.token0Amount}
                         </td>
                         <td>{order.tokenPrice}</td>

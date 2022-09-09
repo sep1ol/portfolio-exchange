@@ -8,6 +8,7 @@ const RED = "#F45353";
 
 const tokens = (state) => get(state, "tokens.contracts");
 const account = (state) => get(state, "provider.account");
+const events = (state) => get(state, "exchange.events");
 
 const allOrders = (state) => get(state, "exchange.allOrders.data", []);
 const cancelledOrders = (state) =>
@@ -58,6 +59,17 @@ const decorateOrder = (order, tokens) => {
     formattedTimestamp: moment.unix(order.timestamp).format("h:mm:ssa d MMM D"),
   };
 };
+
+// ------------------------------------------------------------------------------
+// MY EVENTS
+export const myEventsSelector = createSelector(
+  account,
+  events,
+  (account, events) => {
+    events = events.filter((e) => e.args.user === account);
+    return events;
+  }
+);
 
 // ------------------------------------------------------------------------------
 // MY OPEN ORDERS
@@ -111,7 +123,7 @@ const decorateMyOpenOrder = (order, tokens) => {
 
 // ------------------------------------------------------------------------------
 // MY TRANSACTIONS
-export const myTransactionsSelector = createSelector(
+export const myFilledOrdersSelector = createSelector(
   account,
   tokens,
   filledOrders,
@@ -120,10 +132,10 @@ export const myTransactionsSelector = createSelector(
       return;
     }
 
-    // Filter orders filled by current account
-    orders = orders.filter((o) => o.user === account);
+    // Find our orders
+    orders = orders.filter((o) => o.user === account || o.creator === account);
 
-    // Filter orders by selected tokens
+    // Filter orders for current trading pair
     orders = orders.filter(
       (o) =>
         o.tokenGet === tokens[0].address || o.tokenGet === tokens[1].address
@@ -133,15 +145,41 @@ export const myTransactionsSelector = createSelector(
         o.tokenGive === tokens[0].address || o.tokenGive === tokens[1].address
     );
 
+    // Sort by timestamp descending
+    orders = orders.sort((a, b) => b.timestamp - a.timestamp);
+
     // Decorate orders - add display attributes
     // note: Reusing the function
-    orders = decorateMyOpenOrders(orders, tokens);
-
-    orders = orders.sort((a, b) => b.timestamp - a.timestamp);
+    orders = decorateMyFilledOrders(orders, account, tokens);
 
     return orders;
   }
 );
+
+const decorateMyFilledOrders = (orders, account, tokens) => {
+  return orders.map((order) => {
+    order = decorateOrder(order, tokens);
+    order = decorateMyFilledOrder(order, account, tokens);
+    return order;
+  });
+};
+
+const decorateMyFilledOrder = (order, account, tokens) => {
+  let orderType;
+  const isMyOrder = order.creator === account;
+  if (isMyOrder) {
+    orderType = order.tokenGive === tokens[1].address ? "buy" : "sell";
+  } else {
+    orderType = order.tokenGive === tokens[1].address ? "sell" : "buy";
+  }
+
+  return {
+    ...order,
+    orderType,
+    orderClass: orderType === "buy" ? GREEN : RED,
+    orderSign: orderType === "buy" ? "+" : "-",
+  };
+};
 
 // ------------------------------------------------------------------------------
 // FILLED ORDERS

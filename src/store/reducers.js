@@ -206,7 +206,7 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
       if (index === -1) {
         data = [...state.allOrders.data, action.order];
       } else {
-        data = state.allOrders.data;
+        return state;
       }
       return {
         ...state,
@@ -221,6 +221,87 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           isError: false,
         },
         events: [action.event, ...state.events],
+      };
+    //----------------------------------
+    // ORDER CANCEL REQUESTS
+    case "ORDER_CANCEL_REQUEST":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Cancel Order",
+          isPending: true,
+          isSuccessful: false,
+          isError: false,
+        },
+      };
+    case "ORDER_CANCEL_SUCCESS":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Cancel Order",
+          isPending: false,
+          isSuccessful: true,
+          isError: false,
+        },
+      };
+    case "ORDER_CANCEL_FAIL":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Cancel Order",
+          isPending: false,
+          isSuccessful: false,
+          isError: true,
+        },
+      };
+    //----------------------------------
+    // ORDER FILL REQUESTS
+    case "ORDER_FILL_REQUEST":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Fill Order",
+          isPending: true,
+          isSuccessful: false,
+          isError: false,
+        },
+      };
+    case "ORDER_FILL_FAIL":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Fill Order",
+          isPending: false,
+          isSuccessful: false,
+          isError: true,
+        },
+      };
+    case "ORDER_FILL_SUCCESS":
+      // Prevent duplicate orders
+      // Checking if id was already confirmed
+      index = state.filledOrders.data.findIndex(
+        (order) => String(order.id) === String(action.order.id)
+      );
+
+      // If true means the current id isn't confirmed
+      if (index === -1) {
+        data = [...state.filledOrders.data, action.order];
+      } else {
+        return state;
+      }
+
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Fill Order",
+          isPending: false,
+          isSuccessful: true,
+          isError: false,
+        },
+        filledOrders: {
+          ...state.filledOrders,
+          data,
+        },
       };
     default:
       return state;

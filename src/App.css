@@ -434,6 +434,12 @@ hr {
 	border-radius: 5px;
 }
 
+.button--close {
+	position: absolute;
+	top: 0.5em;
+	right: 0.7em;
+}
+
 .button span {
 	position: relative;
 }
