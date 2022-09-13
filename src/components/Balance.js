@@ -43,27 +43,54 @@ const Balance = () => {
     }
   };
 
+  const checkBalance = (selectedToken) => {
+    // First we check if token balances is loaded
+    if (tokenBalances) {
+      // Select what token we're checking
+      if (selectedToken === "token1") {
+        // Requirements:
+        return (
+          // #1: Amount typed exists
+          Number(token1TransferAmount) <= Number(tokenBalances[0]) &&
+          // #1: Amount typed is positive
+          Number(token1TransferAmount) >= 0
+        );
+      } else if (selectedToken === "token2") {
+        return (
+          Number(token2TransferAmount) <= Number(tokenBalances[0]) &&
+          Number(token2TransferAmount) >= 0
+        );
+      }
+    }
+    // Default: returns false to prevent crashes
+    return false;
+  };
+
   const depositHandler = (e, token) => {
     e.preventDefault();
     if (token.address === tokens[0].address) {
-      transferTokens(
-        provider,
-        exchange,
-        "Deposit",
-        token,
-        token1TransferAmount,
-        dispatch
-      );
+      if (checkBalance("token1")) {
+        transferTokens(
+          provider,
+          exchange,
+          "Deposit",
+          token,
+          token1TransferAmount,
+          dispatch
+        );
+      }
       setToken1TransferAmount("");
     } else if (token.address === tokens[1].address) {
-      transferTokens(
-        provider,
-        exchange,
-        "Deposit",
-        token,
-        token2TransferAmount,
-        dispatch
-      );
+      if (checkBalance("token2")) {
+        transferTokens(
+          provider,
+          exchange,
+          "Deposit",
+          token,
+          token2TransferAmount,
+          dispatch
+        );
+      }
       setToken2TransferAmount("");
     }
   };
@@ -71,24 +98,28 @@ const Balance = () => {
   const withdrawHandler = (e, token) => {
     e.preventDefault();
     if (token.address === tokens[0].address) {
-      transferTokens(
-        provider,
-        exchange,
-        "Withdraw",
-        token,
-        token1TransferAmount,
-        dispatch
-      );
+      if (checkBalance("token1")) {
+        transferTokens(
+          provider,
+          exchange,
+          "Withdraw",
+          token,
+          token1TransferAmount,
+          dispatch
+        );
+      }
       setToken1TransferAmount("");
     } else if (token.address === tokens[1].address) {
-      transferTokens(
-        provider,
-        exchange,
-        "Withdraw",
-        token,
-        token2TransferAmount,
-        dispatch
-      );
+      if (checkBalance("token2")) {
+        transferTokens(
+          provider,
+          exchange,
+          "Withdraw",
+          token,
+          token2TransferAmount,
+          dispatch
+        );
+      }
       setToken2TransferAmount("");
     }
   };
@@ -131,8 +162,7 @@ const Balance = () => {
         </div>
       </div>
 
-      {/* Deposit/Withdraw Component 1 (DApp) */}
-
+      {/* Deposit/Withdraw Component 1 (SEPT) */}
       <div className="exchange__transfers--form">
         <div className="flex-between">
           <p>

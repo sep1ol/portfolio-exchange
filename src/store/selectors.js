@@ -67,11 +67,11 @@ export const myEventsSelector = createSelector(
   events,
   (account, events) => {
     if ((account, events)) {
-      // TODO - selector.js
-      // Problem line below. Not recognizing e.args.user.
-      // Problem happens when we try to create either buy/sell order.
+      // Deleting 'undefined' events
+      events = events.filter((e) => e !== undefined);
+
+      // Getting what events belong to the user
       events = events.filter((e) => String(e.args.user) === String(account));
-      console.log("selector.js", events);
       return events;
     } else {
       return null;

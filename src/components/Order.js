@@ -15,6 +15,7 @@ const Order = () => {
   const provider = useSelector((state) => state.provider.connection);
   const exchange = useSelector((state) => state.exchange.contract);
   const tokens = useSelector((state) => state.tokens.contracts);
+  const tokenBalances = useSelector((state) => state.tokens.balances);
 
   const tabHandler = (e) => {
     if (e.target.className !== buyRef.current.className) {
@@ -33,7 +34,10 @@ const Order = () => {
 
     const order = { amount, price };
     makeBuyOrder(provider, exchange, tokens, order, dispatch);
-
+    if (tokenBalances) {
+      if (Number(price) >= 0 && Number(price) <= Number(tokenBalances[0])) {
+      }
+    }
     setAmount("");
     setPrice("");
   };
@@ -41,8 +45,12 @@ const Order = () => {
   const sellHandler = (e) => {
     e.preventDefault();
 
-    const order = { amount, price };
-    makeSellOrder(provider, exchange, tokens, order, dispatch);
+    if (tokenBalances) {
+      if (Number(amount) >= 0 && Number(amount) <= Number(tokenBalances[0])) {
+        const order = { amount, price };
+        makeSellOrder(provider, exchange, tokens, order, dispatch);
+      }
+    }
     setAmount("");
     setPrice("");
   };

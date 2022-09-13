@@ -132,7 +132,7 @@ export const subscribeToEvents = (exchange, dispatch) => {
       event
     ) => {
       const order = event.args;
-      dispatch({ type: "ORDER_CANCEL_SUCCESS", order, event });
+      dispatch({ type: "NEW_ORDER_SUCCESS", order, event });
     }
   );
 
@@ -149,7 +149,7 @@ export const subscribeToEvents = (exchange, dispatch) => {
       event
     ) => {
       const order = event.args;
-      dispatch({ type: "TRANSFER_SUCCESS", order, event });
+      dispatch({ type: "ORDER_CANCEL_SUCCESS", order, event });
     }
   );
   exchange.on(
@@ -240,7 +240,9 @@ export const makeBuyOrder = async (
     const signer = await provider.getSigner();
     transaction = await exchange
       .connect(signer)
-      .makeOrder(tokenGet, amountGet, tokenGive, amountGive);
+      .makeOrder(tokenGet, amountGet, tokenGive, amountGive, {
+        gasLimit: 1_000_000,
+      });
     await transaction.wait();
   } catch (error) {
     console.error(error);
@@ -309,4 +311,12 @@ export const fillOrder = async (provider, exchange, order, dispatch) => {
 // UTILITIES
 export const formatAmount = (amount) => {
   return Number(ethers.utils.formatEther(String(amount)));
+};
+
+export const orderIdDoesNotExist = (allOrders, orderToVerify) => {
+  return (
+    allOrders.findIndex(
+      (order) => String(order.id) === String(orderToVerify.id)
+    ) === -1
+  );
 };

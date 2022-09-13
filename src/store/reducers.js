@@ -1,3 +1,5 @@
+import { orderIdDoesNotExist } from "./interactions";
+
 const DEFAULT_PROVIDER_STATE = {
   connection: null,
   chainId: null,
@@ -243,6 +245,9 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           isSuccessful: true,
           isError: false,
         },
+        cancelledOrders: {
+          data: [...state.cancelledOrders.data, action.order],
+        },
       };
     case "ORDER_CANCEL_FAIL":
       return {
@@ -279,30 +284,35 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
     case "ORDER_FILL_SUCCESS":
       // Prevent duplicate orders
       // Checking if id was already confirmed
-      index = state.filledOrders.data.findIndex(
-        (order) => String(order.id) === String(action.order.id)
-      );
-
-      // If true means the current id isn't confirmed
-      if (index === -1) {
-        data = [...state.filledOrders.data, action.order];
+      if (orderIdDoesNotExist(state.filledOrders.data, action.order)) {
+        return {
+          ...state,
+          transaction: {
+            transactionType: "Fill Order",
+            isPending: false,
+            isSuccessful: true,
+            isError: false,
+          },
+          filledOrders: {
+            ...state.filledOrders,
+            data: [...state.filledOrders.data, action.order],
+          },
+        };
       } else {
-        return state;
+        return {
+          ...state,
+          transaction: {
+            transactionType: "Fill Order",
+            isPending: false,
+            isSuccessful: true,
+            isError: false,
+          },
+          filledOrders: {
+            ...state.filledOrders,
+            data,
+          },
+        };
       }
-
-      return {
-        ...state,
-        transaction: {
-          transactionType: "Fill Order",
-          isPending: false,
-          isSuccessful: true,
-          isError: false,
-        },
-        filledOrders: {
-          ...state.filledOrders,
-          data,
-        },
-      };
     default:
       return state;
   }

@@ -9,7 +9,12 @@ contract Exchange {
     uint256 public feePercent;
     uint256 public orderCount;
 
+    // Stores balance for each token
     mapping(address => mapping(address => uint256)) public tokens;
+    // Stores reserved tokens for created orders
+    mapping(address => mapping(address => uint256)) public reservedTokens;
+
+    // Stores order's informations
     mapping(uint256 => _Order) public orders;
     mapping(uint256 => bool) public orderCancelled;
     mapping(uint256 => bool) public orderFilled;
@@ -65,6 +70,9 @@ contract Exchange {
         feePercent = _feePercent;
     }
 
+    // --------------------------------------------------------------------------
+    // UTILITY FUNCTIONS
+
     function balanceOf(address _token, address _user)
         public
         view
@@ -73,7 +81,32 @@ contract Exchange {
         return tokens[_token][_user];
     }
 
-    //Deposit tokens
+    function reserveToken(
+        address _token,
+        address _user,
+        uint256 _amount
+    ) private {
+        reservedTokens[_token][_user] = reservedTokens[_token][_user] + _amount;
+    }
+
+    function reserveToken_cancel(
+        address _token,
+        address _user,
+        uint256 _amount
+    ) private {
+        reservedTokens[_token][_user] = reservedTokens[_token][_user] - _amount;
+    }
+
+    function reservedTokenBalance(address _token, address _user)
+        public
+        view
+        returns (uint256)
+    {
+        return reservedTokens[_token][_user];
+    }
+
+    // --------------------------------------------------------------------------
+    // TOKENS (Deposit & Withdraw)
     function depositToken(address _token, uint256 _amount) public {
         // transfer tokens to exchange
         require(
@@ -92,10 +125,18 @@ contract Exchange {
     }
 
     function withdrawToken(address _token, uint256 _amount) public {
+        // Verifying if the user has enough to withdraw
         require(
             balanceOf(_token, msg.sender) >= _amount,
             "Insufficient balance to withdraw"
         );
+        // Verifying if the user has reserved tokens for opened orders
+        require(
+            (balanceOf(_token, msg.sender) -
+                reservedTokenBalance(_token, msg.sender)) >= _amount,
+            "Opened orders are reserving tokens."
+        );
+
         // transfer tokens to user
         require(Token(_token).transfer(msg.sender, _amount));
         // update balance
@@ -104,6 +145,8 @@ contract Exchange {
         emit Withdraw(_token, msg.sender, _amount, tokens[_token][msg.sender]);
     }
 
+    // --------------------------------------------------------------------------
+    // ORDERS (Create & Cancel & Fill)
     function makeOrder(
         address tokenGet,
         uint256 amountGet,
@@ -111,11 +154,24 @@ contract Exchange {
         uint256 amountGive
     ) public {
         require(
-            balanceOf(tokenGive, msg.sender) >= amountGive,
+            amountGive <= balanceOf(tokenGive, msg.sender),
             "Insufficient balance for creating order"
         );
 
+        require(
+            amountGive <=
+                (balanceOf(tokenGive, msg.sender) -
+                    reservedTokenBalance(tokenGive, msg.sender)),
+            "Opened orders are reserving tokens."
+        );
+
+        require(
+            balanceOf(tokenGive, msg.sender) >= 0,
+            "No balance available to create an order"
+        );
+
         orderCount++;
+        reserveToken(tokenGive, msg.sender, amountGive);
 
         orders[orderCount] = _Order(
             orderCount,
@@ -141,13 +197,16 @@ contract Exchange {
     function cancelOrder(uint256 _id) public {
         _Order storage _order = orders[_id];
 
+        // Order must belong to user who created it
         require(
             address(_order.user) == msg.sender,
             "Unauthorized to cancel order"
         );
+        // Order must exist
         require(_order.id == _id, "Unexisting ID");
 
         orderCancelled[_id] = true;
+        reserveToken_cancel(_order.tokenGive, msg.sender, _order.amountGive);
 
         emit Cancel(
             _order.id,
@@ -177,8 +236,11 @@ contract Exchange {
         );
 
         orderFilled[_order.id] = true;
+        reserveToken_cancel(_order.tokenGive, _order.user, _order.amountGive);
     }
 
+    // --------------------------------------------------------------------------
+    // TRADE FUNCTION
     function _trade(
         uint256 _orderId,
         address _user,
