@@ -27,6 +27,7 @@ const Balance = () => {
   const tokens = useSelector((state) => state.tokens.contracts);
   const symbols = useSelector((state) => state.tokens.symbols);
   const tokenBalances = useSelector((state) => state.tokens.balances);
+  const reserved = useSelector((state) => state.exchange.reservedBalances);
 
   useEffect(() => {
     if (exchange && tokens && account) {
@@ -181,6 +182,11 @@ const Balance = () => {
             <br />
             {exchangeBalances && exchangeBalances[0]}
           </p>
+          <p>
+            <small>Orders</small>
+            <br />
+            {reserved && reserved[0]}
+          </p>
         </div>
 
         <form
@@ -244,6 +250,11 @@ const Balance = () => {
             <small>Exchange</small>
             <br />
             {exchangeBalances && exchangeBalances[1]}
+          </p>
+          <p>
+            <small>Orders</small>
+            <br />
+            {reserved && reserved[1]}
           </p>
         </div>
 

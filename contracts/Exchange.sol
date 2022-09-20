@@ -86,6 +86,7 @@ contract Exchange {
         address _user,
         uint256 _amount
     ) private {
+        tokens[_token][_user] = tokens[_token][_user] - _amount;
         reservedTokens[_token][_user] = reservedTokens[_token][_user] + _amount;
     }
 
@@ -130,12 +131,6 @@ contract Exchange {
             balanceOf(_token, msg.sender) >= _amount,
             "Insufficient balance to withdraw"
         );
-        // Verifying if the user has reserved tokens for opened orders
-        require(
-            (balanceOf(_token, msg.sender) -
-                reservedTokenBalance(_token, msg.sender)) >= _amount,
-            "Opened orders are reserving tokens."
-        );
 
         // transfer tokens to user
         require(Token(_token).transfer(msg.sender, _amount));
@@ -156,13 +151,6 @@ contract Exchange {
         require(
             amountGive <= balanceOf(tokenGive, msg.sender),
             "Insufficient balance for creating order"
-        );
-
-        require(
-            amountGive <=
-                (balanceOf(tokenGive, msg.sender) -
-                    reservedTokenBalance(tokenGive, msg.sender)),
-            "Opened orders are reserving tokens."
         );
 
         require(
@@ -205,8 +193,14 @@ contract Exchange {
         // Order must exist
         require(_order.id == _id, "Unexisting ID");
 
+        // Updating cancelled orders mapping
         orderCancelled[_id] = true;
+
+        // Unreserving tokens: remove from reserved and add to balance
         reserveToken_cancel(_order.tokenGive, msg.sender, _order.amountGive);
+        tokens[_order.tokenGive][msg.sender] =
+            tokens[_order.tokenGive][msg.sender] +
+            _order.amountGive;
 
         emit Cancel(
             _order.id,
@@ -235,8 +229,8 @@ contract Exchange {
             _order.amountGive
         );
 
+        // Updating filled orders mapping
         orderFilled[_order.id] = true;
-        reserveToken_cancel(_order.tokenGive, _order.user, _order.amountGive);
     }
 
     // --------------------------------------------------------------------------
@@ -267,13 +261,15 @@ contract Exchange {
         tokens[tokenGet][msg.sender] =
             tokens[tokenGet][msg.sender] -
             (amountGet + _feeAmount);
-        tokens[tokenGet][_user] = tokens[tokenGet][_user] + amountGet;
-
-        // Changing the balance of the user who created the order
-        tokens[tokenGive][_user] = tokens[tokenGive][_user] - amountGive;
         tokens[tokenGive][msg.sender] =
             tokens[tokenGive][msg.sender] +
             amountGive;
+
+        // Changing the balance of the user who created the order
+        tokens[tokenGet][_user] = tokens[tokenGet][_user] + amountGet;
+
+        // Cancelling reserved token
+        reserveToken_cancel(tokenGive, _user, amountGive);
 
         emit Trade(
             _orderId,

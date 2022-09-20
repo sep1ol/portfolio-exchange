@@ -69,21 +69,43 @@ export const loadExchange = async (address, provider, dispatch) => {
 };
 
 export const loadBalances = async (exchange, tokens, account, dispatch) => {
+  // Loading wallet balances...
+  // Token 1
   let balance = ethers.utils.formatEther(await tokens[0].balanceOf(account));
   dispatch({ type: "TOKEN_1_BALANCE_LOADED", balance });
-
+  // Token 2
   balance = ethers.utils.formatEther(await tokens[1].balanceOf(account));
   dispatch({ type: "TOKEN_2_BALANCE_LOADED", balance });
 
+  // Loading exchange balances...
+  // Token1
   balance = ethers.utils.formatEther(
     await exchange.balanceOf(tokens[0].address, account)
   );
   dispatch({ type: "EXCHANGE_TOKEN_1_BALANCE_LOADED", balance });
-
+  // Token2
   balance = ethers.utils.formatEther(
     await exchange.balanceOf(tokens[1].address, account)
   );
   dispatch({ type: "EXCHANGE_TOKEN_2_BALANCE_LOADED", balance });
+
+  // Loading reserved tokens...
+  // Token1
+  let reserved = ethers.utils.formatEther(
+    await exchange.reservedTokens(tokens[0].address, account)
+  );
+  dispatch({
+    type: "RESERVED_TOKEN_1_BALANCE_LOADED",
+    reservedToken: reserved,
+  });
+  // Token2
+  reserved = ethers.utils.formatEther(
+    await exchange.reservedTokens(tokens[1].address, account)
+  );
+  dispatch({
+    type: "RESERVED_TOKEN_2_BALANCE_LOADED",
+    reservedToken: reserved,
+  });
 };
 
 //---------------------------------------------------
@@ -132,7 +154,7 @@ export const subscribeToEvents = (exchange, dispatch) => {
       event
     ) => {
       const order = event.args;
-      dispatch({ type: "NEW_ORDER_SUCCESS", order, event });
+      dispatch({ type: "NEW_ORDER_SUCCESS", order, event, amountGive });
     }
   );
 

@@ -43,5 +43,20 @@
             "address": "0xA32D0cC3426914151359c34CB7D427d1f1478750"
         },
         "explorerURL":"https://rinkeby.etherscan.io/"
+    },
+    "5":{
+        "exchange":{
+            "address": "0x049D5A74f7194112aFe94E5915A52A49BA4D62d0"
+        },
+        "sep1ol":{
+            "address": "0x9cE4D4EFC427787DDB73a110Ae6CfD12A3f0C1bd"
+        },
+        "mETH":{
+            "address": "0x1331b9D51153Df9b9174c847ee08eFd4817a5a1e"
+        },
+        "mUSDT":{
+            "address": "0xA32D0cC3426914151359c34CB7D427d1f1478750"
+        },
+        "explorerURL":"https://goerli.etherscan.io//"
     }
 }

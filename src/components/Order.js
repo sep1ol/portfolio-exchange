@@ -32,10 +32,10 @@ const Order = () => {
   const buyHandler = (e) => {
     e.preventDefault();
 
-    const order = { amount, price };
-    makeBuyOrder(provider, exchange, tokens, order, dispatch);
     if (tokenBalances) {
       if (Number(price) >= 0 && Number(price) <= Number(tokenBalances[0])) {
+        const order = { amount, price };
+        makeBuyOrder(provider, exchange, tokens, order, dispatch);
       }
     }
     setAmount("");

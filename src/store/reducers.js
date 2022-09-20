@@ -142,6 +142,18 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
         balances: [...state.balances, action.balance],
       };
     //----------------------------------
+    // LOADING RESERVED TOKENS
+    case "RESERVED_TOKEN_1_BALANCE_LOADED":
+      return {
+        ...state,
+        reservedBalances: [action.reservedToken],
+      };
+    case "RESERVED_TOKEN_2_BALANCE_LOADED":
+      return {
+        ...state,
+        reservedBalances: [...state.reservedBalances, action.reservedToken],
+      };
+    //----------------------------------
     // TRANSFER REQUESTS
     case "TRANSFER_REQUEST":
       return {

@@ -25,11 +25,28 @@ const Alert = () => {
   };
 
   useEffect(() => {
+    // If successful, check if alert was already displayed
+    // If yes, update the cookie with most recent transaction hash
+    // If not, it won't display the alert
     if (
-      (isPending || isError || isSuccessful) &&
+      isSuccessful &&
       account &&
-      alertRef.current !== null
+      alertRef.current.className !== null &&
+      events
     ) {
+      let lastTransaction = document.cookie.split("=")[1];
+      if (String(lastTransaction) !== String(events[0].transactionHash)) {
+        document.cookie = `lastTransactionHash=${String(
+          events[0].transactionHash
+        )}`;
+        alertRef.current.className = "alert";
+      } else {
+        alertRef.current.className = "alert alert--remove";
+      }
+    }
+
+    // If is pending or error, just display the alert
+    if ((isPending || isError) && account && alertRef.current !== null) {
       alertRef.current.className = "alert";
     }
   }, [isPending, isSuccessful, isError, account, events]);
