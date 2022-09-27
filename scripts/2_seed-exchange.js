@@ -29,6 +29,7 @@ async function main() {
   const tetherAddress = config[chainId].mUSDT.address;
   const ethAddress = config[chainId].mETH.address;
   const exchangeAddress = config[chainId].exchange.address;
+  const freeTokensAddress = config[chainId].freeTokens.address;
 
   ///////////////////////////
   // FETCHING DATA TO START PROJECT
@@ -43,6 +44,10 @@ async function main() {
   const tether = await ethers.getContractAt("Token", tetherAddress);
   const eth = await ethers.getContractAt("Token", ethAddress);
   const exchange = await ethers.getContractAt("Exchange", exchangeAddress);
+  const freeTokensContract = await ethers.getContractAt(
+    "FreeTokens",
+    freeTokensAddress
+  );
   console.log("Exchange fetched:", exchange.address);
   console.log("Sepiol Token fetched:", sep1ol.address);
   console.log("mTether fetched:", tether.address);
@@ -184,6 +189,61 @@ async function main() {
     await wait(1);
   }
   console.log("\n>> Orders created for User 2.");
+
+  ///////////////////////////
+  // Sending 10.000 of each token to giveaway contract
+  console.log("------------------", "\n");
+  console.log("[GIVEAWAY TOKENS]");
+
+  // Depositing SEPT...
+  try {
+    transaction = await sep1ol
+      .connect(user1)
+      .approve(freeTokensAddress, tokens("10000"));
+    await transaction.wait();
+    transaction = await freeTokensContract.depositToken(
+      sep1ol.address,
+      tokens("10000")
+    );
+    await transaction.wait();
+
+    console.log(">> 10k SEPT deposited.");
+  } catch (error) {
+    console.error(error);
+  }
+
+  // Depositing mETH...
+  try {
+    transaction = await tether
+      .connect(user1)
+      .approve(freeTokensAddress, tokens("10000"));
+    await transaction.wait();
+    transaction = await freeTokensContract.depositToken(
+      tether.address,
+      tokens("10000")
+    );
+    await transaction.wait();
+
+    console.log(">> 10k mETH deposited.");
+  } catch (error) {
+    console.error(error);
+  }
+  // Depositing mUSDT...
+  try {
+    transaction = await eth
+      .connect(user1)
+      .approve(freeTokensAddress, tokens("10000"));
+    await transaction.wait();
+    transaction = await freeTokensContract.depositToken(
+      eth.address,
+      tokens("10000")
+    );
+    await transaction.wait();
+
+    console.log(">> 10k mUSDT deposited.");
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 main()

@@ -22,6 +22,7 @@ import {
   loadExchange,
   loadAllOrders,
   subscribeToEvents,
+  loadFreeTokensContract,
 } from "../store/interactions";
 
 function App() {
@@ -57,6 +58,12 @@ function App() {
       dispatch
     );
 
+    await loadFreeTokensContract(
+      config[chainId].freeTokens.address,
+      provider,
+      dispatch
+    );
+
     loadAllOrders(provider, exchange, dispatch);
 
     subscribeToEvents(exchange, dispatch);
@@ -67,26 +74,28 @@ function App() {
   }, []);
 
   return (
-    <div>
-      <Navbar />
+    <>
       <Popup />
+      <div>
+        <Navbar />
 
-      <main className="exchange grid">
-        <section className="exchange__section--left grid">
-          <Markets />
-          <Balance />
-          <Order />
-        </section>
-        <section className="exchange__section--right grid">
-          <PriceChart />
-          <Transactions />
-          <Trades />
-          <OrderBook />
-        </section>
-      </main>
+        <main className="exchange grid">
+          <section className="exchange__section--left grid">
+            <Markets />
+            <Balance />
+            <Order />
+          </section>
+          <section className="exchange__section--right grid">
+            <PriceChart />
+            <Transactions />
+            <Trades />
+            <OrderBook />
+          </section>
+        </main>
 
-      <Alert />
-    </div>
+        <Alert />
+      </div>
+    </>
   );
 }
 

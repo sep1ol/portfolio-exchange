@@ -341,6 +341,60 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           },
         };
       }
+    //----------------------------------
+    // GIVEAWAY REQUESTS
+    case "GIVEAWAY_REQUEST":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Giveaway",
+          isPending: true,
+          isSuccessful: false,
+          isError: false,
+        },
+      };
+    case "GIVEAWAY_SUCCESS":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Giveaway",
+          isPending: false,
+          isSuccessful: true,
+          isError: false,
+        },
+      };
+    case "GIVEAWAY_FAIL":
+      return {
+        ...state,
+        transaction: {
+          transactionType: "Giveaway",
+          isPending: false,
+          isSuccessful: false,
+          isError: true,
+        },
+      };
+    default:
+      return state;
+  }
+};
+
+const DEFAULT_GIVEAWAY_STATE = {
+  contract: null,
+  available: false,
+};
+export const giveAway = (state = DEFAULT_PROVIDER_STATE, action) => {
+  switch (action.type) {
+    case "GIVEAWAY_CONTRACT_LOADED":
+      return {
+        ...state,
+        contract: action.contract,
+      };
+    case "GIVEAWAY_INFO_LOADED":
+      return {
+        ...state,
+        lastTransfer: action.lastTransfer,
+      };
+
     default:
       return state;
   }

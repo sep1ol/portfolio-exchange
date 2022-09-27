@@ -71,6 +71,18 @@ async function main() {
   const exchange = await Exchange.deploy(accounts[1].address, 10);
   await exchange.deployed();
   console.log(`[Exchange]: ${exchange.address}`);
+
+  // Deploying token giveaway contract
+  console.log("*** DEPLOYING TOKEN GIVEAWAY ***");
+  const FreeTokens = await ethers.getContractFactory("FreeTokens");
+  const freeTokens = await FreeTokens.deploy(
+    accounts[0].address,
+    sep1ol.address,
+    tether.address,
+    eth.address
+  );
+  await freeTokens.deployed();
+  console.log(`[FreeTokens Contract]: ${freeTokens.address}`);
 }
 
 main()

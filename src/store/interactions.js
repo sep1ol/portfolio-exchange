@@ -1,6 +1,7 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { TOKEN_ABI } from "../abis/Token";
 import { EXCHANGE_ABI } from "../abis/Exchange";
+import { FREETOKENS_ABI } from "../abis/FreeTokens";
 import { useSelector } from "react-redux";
 
 //---------------------------------------------------
@@ -112,6 +113,42 @@ export const loadReservedTokens = async (
     type: "RESERVED_TOKEN_2_BALANCE_LOADED",
     reservedToken: reserved,
   });
+};
+
+export const loadFreeTokensContract = async (address, provider, dispatch) => {
+  const contract = new ethers.Contract(address, FREETOKENS_ABI, provider);
+
+  dispatch({ type: "GIVEAWAY_CONTRACT_LOADED", contract });
+};
+
+export const loadGiveawayInfo = async (contract, user, dispatch) => {
+  const ONE_DAY = 24 * 60 * 60;
+  const lastTransfer = BigNumber.from(
+    await contract.lastTransfer(user)
+  ).toNumber();
+
+  const timeNow = new Date();
+  const timeNow_Unix = Math.floor(timeNow.getTime() / 1000);
+
+  const available = timeNow_Unix - lastTransfer >= ONE_DAY;
+
+  dispatch({ type: "GIVEAWAY_INFO_LOADED", available });
+};
+
+export const giveTokens = async (provider, contract, dispatch) => {
+  const signer = await provider.getSigner();
+
+  dispatch({ type: "GIVEAWAY_REQUEST" });
+  try {
+    const transaction = await contract
+      .connect(signer)
+      .transferToUser(ethers.utils.parseUnits(String("100"), "ether"));
+    await transaction.wait();
+    dispatch({ type: "GIVEAWAY_SUCCESS" });
+  } catch (error) {
+    dispatch({ type: "GIVEAWAY_FAIL" });
+    console.error(error);
+  }
 };
 
 //---------------------------------------------------
