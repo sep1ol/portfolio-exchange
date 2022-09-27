@@ -3,7 +3,11 @@ import ethLogo from "../assets/eth.svg";
 import usdtLogo from "../assets/tether.svg";
 import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loadBalances, transferTokens } from "../store/interactions";
+import {
+  loadBalances,
+  loadReservedTokens,
+  transferTokens,
+} from "../store/interactions";
 
 const Balance = () => {
   const [isDeposit, setIsDeposit] = useState(true);
@@ -28,12 +32,17 @@ const Balance = () => {
   const symbols = useSelector((state) => state.tokens.symbols);
   const tokenBalances = useSelector((state) => state.tokens.balances);
   const reserved = useSelector((state) => state.exchange.reservedBalances);
+  const updateReserved = useSelector((state) => state.exchange.updateReserved);
 
   useEffect(() => {
     if (exchange && tokens && account) {
       loadBalances(exchange, tokens, account, dispatch);
+      loadReservedTokens(exchange, tokens, account, dispatch);
     }
-  }, [exchange, tokens, account, transferInProgress, dispatch]);
+    if (updateReserved && exchange && tokens && account && dispatch) {
+      loadReservedTokens(exchange, tokens, account, dispatch);
+    }
+  }, [exchange, tokens, account, transferInProgress, dispatch, updateReserved]);
 
   const amountHandler = (e, token) => {
     if (token.address === tokens[0].address) {

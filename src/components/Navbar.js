@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import logoImage from "../assets/logo.png";
+import logoImage from "../assets/website-logo.png";
 import eth from "../assets/eth.svg";
 import Blockies from "react-blockies";
 import { loadAccount } from "../store/interactions";

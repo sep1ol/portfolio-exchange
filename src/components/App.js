@@ -2,8 +2,8 @@ import "../App.css";
 import config from "../config.json";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { ethers } from "ethers";
 
+import Popup from "./Popup";
 import Navbar from "./Navbar";
 import Markets from "./Markets";
 import Balance from "./Balance";
@@ -69,6 +69,7 @@ function App() {
   return (
     <div>
       <Navbar />
+      <Popup />
 
       <main className="exchange grid">
         <section className="exchange__section--left grid">

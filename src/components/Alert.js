@@ -4,6 +4,7 @@ import config from "../config.json";
 import closeButton from "../assets/close.svg";
 
 import { myEventsSelector } from "../store/selectors";
+import { removeRepeatedAlerts } from "../store/interactions";
 
 const Alert = () => {
   const alertRef = useRef(null);
@@ -25,34 +26,18 @@ const Alert = () => {
   };
 
   useEffect(() => {
-    // If successful, check if alert was already displayed
-    // If yes, update the cookie with most recent transaction hash
-    // If not, it won't display the alert
-    if (
-      isSuccessful &&
-      account &&
-      alertRef.current.className !== null &&
-      events
-    ) {
-      let lastTransaction = document.cookie.split("=")[1];
-      if (String(lastTransaction) !== String(events[0].transactionHash)) {
-        document.cookie = `lastTransactionHash=${String(
-          events[0].transactionHash
-        )}`;
-        alertRef.current.className = "alert";
-      } else {
-        alertRef.current.className = "alert alert--remove";
-      }
-    }
-
-    // If is pending or error, just display the alert
-    if ((isPending || isError) && account && alertRef.current !== null) {
-      alertRef.current.className = "alert";
+    if (alertRef.current !== null) {
+      removeRepeatedAlerts(
+        isSuccessful,
+        isPending,
+        isError,
+        account,
+        alertRef,
+        events
+      );
     }
   }, [isPending, isSuccessful, isError, account, events]);
 
-  // TODO: Alert.js
-  // Problem when transaction is successful and we try
   return (
     <div>
       {isPending ? (

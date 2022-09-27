@@ -1,8 +1,7 @@
 import { ethers } from "ethers";
 import { TOKEN_ABI } from "../abis/Token";
 import { EXCHANGE_ABI } from "../abis/Exchange";
-import { useDispatch } from "react-redux";
-import { exchange, provider } from "./reducers";
+import { useSelector } from "react-redux";
 
 //---------------------------------------------------
 // LOADING INFORMATION TO WEBSITE
@@ -88,7 +87,14 @@ export const loadBalances = async (exchange, tokens, account, dispatch) => {
     await exchange.balanceOf(tokens[1].address, account)
   );
   dispatch({ type: "EXCHANGE_TOKEN_2_BALANCE_LOADED", balance });
+};
 
+export const loadReservedTokens = async (
+  exchange,
+  tokens,
+  account,
+  dispatch
+) => {
   // Loading reserved tokens...
   // Token1
   let reserved = ethers.utils.formatEther(
@@ -154,7 +160,11 @@ export const subscribeToEvents = (exchange, dispatch) => {
       event
     ) => {
       const order = event.args;
+
       dispatch({ type: "NEW_ORDER_SUCCESS", order, event, amountGive });
+      dispatch({
+        type: "UPDATE_RESERVED",
+      });
     }
   );
 
@@ -172,6 +182,9 @@ export const subscribeToEvents = (exchange, dispatch) => {
     ) => {
       const order = event.args;
       dispatch({ type: "ORDER_CANCEL_SUCCESS", order, event });
+      dispatch({
+        type: "UPDATE_RESERVED",
+      });
     }
   );
   exchange.on(
@@ -189,6 +202,9 @@ export const subscribeToEvents = (exchange, dispatch) => {
     ) => {
       const order = event.args;
       dispatch({ type: "ORDER_FILL_SUCCESS", order, event });
+      dispatch({
+        type: "UPDATE_RESERVED",
+      });
     }
   );
 };
@@ -341,4 +357,38 @@ export const orderIdDoesNotExist = (allOrders, orderToVerify) => {
       (order) => String(order.id) === String(orderToVerify.id)
     ) === -1
   );
+};
+
+export const removeRepeatedAlerts = (
+  isSuccessful,
+  isPending,
+  isError,
+  account,
+  alertRef,
+  events
+) => {
+  if (isSuccessful) {
+    if (alertRef.current.className !== null && account && events) {
+      let lastTransaction = document.cookie.split("=")[1];
+      let isNewTransaction =
+        String(lastTransaction) !== String(events[0].transactionHash);
+      if (isNewTransaction) {
+        // Updating cookie with current transaction hash
+        document.cookie = `lastTransactionHash=${String(
+          events[0].transactionHash
+        )}`;
+        // Dispĺaying Alert
+        alertRef.current.className = "alert";
+      } else {
+        // Transaction already displayed,
+        // remove alert
+        alertRef.current.className = "alert alert--remove";
+      }
+    }
+  }
+
+  // If is pending or error, just display the alert
+  if ((isPending || isError) && account && alertRef.current !== null) {
+    alertRef.current.className = "alert";
+  }
 };

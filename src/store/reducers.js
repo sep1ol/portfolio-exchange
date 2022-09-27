@@ -72,6 +72,8 @@ const DEFAULT_EXCHANGE_STATE = {
   loaded: false,
   contract: {},
   balances: [],
+  reservedBalances: [],
+  updateReservedTokens: false,
   events: [],
   allOrders: {
     loaded: false,
@@ -147,11 +149,20 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
       return {
         ...state,
         reservedBalances: [action.reservedToken],
+        updateReserved: false,
       };
     case "RESERVED_TOKEN_2_BALANCE_LOADED":
       return {
         ...state,
         reservedBalances: [...state.reservedBalances, action.reservedToken],
+        updateReserved: false,
+      };
+    //----------------------------------
+    // UPDATE RESERVED TOKENS AFTER EVENTS
+    case "UPDATE_RESERVED":
+      return {
+        ...state,
+        updateReserved: true,
       };
     //----------------------------------
     // TRANSFER REQUESTS
@@ -214,28 +225,33 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
       };
     case "NEW_ORDER_SUCCESS":
       let data;
+      // Is current order already on state?
+      // If yes, we'll get it's position, if no we'll get -1
       let index = state.allOrders.data.findIndex(
         (order) => String(order.id) === String(action.orderId)
       );
       if (index === -1) {
-        data = [...state.allOrders.data, action.order];
+        // If not found, add it...
+        return {
+          ...state,
+          allOrders: {
+            ...state.allOrders,
+            data: [...state.allOrders.data, action.order],
+          },
+          transaction: {
+            transactionType: "New Order",
+            isPending: false,
+            isSuccessful: true,
+            isError: false,
+          },
+          events: [action.event, ...state.events],
+        };
       } else {
+        // If item is already included,
+        // return state as it is
         return state;
       }
-      return {
-        ...state,
-        allOrders: {
-          ...state.allOrders,
-          data,
-        },
-        transaction: {
-          transactionType: "New Order",
-          isPending: false,
-          isSuccessful: true,
-          isError: false,
-        },
-        events: [action.event, ...state.events],
-      };
+
     //----------------------------------
     // ORDER CANCEL REQUESTS
     case "ORDER_CANCEL_REQUEST":

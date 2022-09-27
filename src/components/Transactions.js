@@ -6,7 +6,7 @@ import {
 import { cancelOrder } from "../store/interactions";
 import sort from "../assets/sort.svg";
 import Banner from "./Banner";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 const Transactions = () => {
   const dispatch = useDispatch();

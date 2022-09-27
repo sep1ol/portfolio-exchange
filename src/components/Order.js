@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { makeBuyOrder, makeSellOrder } from "../store/interactions";
 
@@ -16,6 +16,7 @@ const Order = () => {
   const exchange = useSelector((state) => state.exchange.contract);
   const tokens = useSelector((state) => state.tokens.contracts);
   const tokenBalances = useSelector((state) => state.tokens.balances);
+  const transaction = useSelector((state) => state.exchange.transaction);
 
   const tabHandler = (e) => {
     if (e.target.className !== buyRef.current.className) {
