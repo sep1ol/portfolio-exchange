@@ -29,7 +29,7 @@ async function main() {
   const tetherAddress = config[chainId].mUSDT.address;
   const ethAddress = config[chainId].mETH.address;
   const exchangeAddress = config[chainId].exchange.address;
-  const freeTokensAddress = config[chainId].freeTokens.address;
+  const freeTokensAddress = config[chainId].giveawayContract;
 
   ///////////////////////////
   // FETCHING DATA TO START PROJECT
@@ -163,8 +163,8 @@ async function main() {
       console.log(`#${failedTransactions} FAIL`);
     }
 
-    // Wait 1 second
-    await wait(1);
+    // Wait 0.5 second
+    await wait(0.5);
     // console.log('Success.')
   }
   console.log("\n>> Orders created for User 1.");
@@ -185,8 +185,8 @@ async function main() {
       console.log(`#${failedTransactions} FAIL`);
     }
 
-    // Wait 1 second
-    await wait(1);
+    // Wait 0.5 second
+    await wait(0.5);
   }
   console.log("\n>> Orders created for User 2.");
 

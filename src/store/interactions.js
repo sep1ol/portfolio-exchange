@@ -3,10 +3,10 @@ import { TOKEN_ABI } from "../abis/Token";
 import { EXCHANGE_ABI } from "../abis/Exchange";
 import { FREETOKENS_ABI } from "../abis/FreeTokens";
 import { useSelector } from "react-redux";
+import config from "../config.json";
 
 //---------------------------------------------------
 // LOADING INFORMATION TO WEBSITE
-
 export const loadAccount = async (dispatch, provider) => {
   const accounts = await window.ethereum.request({
     method: "eth_requestAccounts",
@@ -119,17 +119,23 @@ export const loadFreeTokensContract = async (address, provider, dispatch) => {
   const contract = new ethers.Contract(address, FREETOKENS_ABI, provider);
 
   dispatch({ type: "GIVEAWAY_CONTRACT_LOADED", contract });
+  return contract;
 };
 
 export const loadGiveawayInfo = async (contract, user, dispatch) => {
   const ONE_DAY = 24 * 60 * 60;
+
+  // Getting the timestamp (UNIX)
+  // of the last time the user received tokens....
   const lastTransfer = BigNumber.from(
     await contract.lastTransfer(user)
   ).toNumber();
 
+  // and from right now... (also UNIX)
   const timeNow = new Date();
   const timeNow_Unix = Math.floor(timeNow.getTime() / 1000);
 
+  // Checking 24h cooldown...
   const available = timeNow_Unix - lastTransfer >= ONE_DAY;
 
   dispatch({ type: "GIVEAWAY_INFO_LOADED", available });
@@ -146,8 +152,7 @@ export const giveTokens = async (provider, contract, dispatch) => {
     await transaction.wait();
     dispatch({ type: "GIVEAWAY_SUCCESS" });
   } catch (error) {
-    dispatch({ type: "GIVEAWAY_FAIL" });
-    console.error(error);
+    handleError(error.message, dispatch);
   }
 };
 
@@ -175,7 +180,7 @@ export const loadAllOrders = async (provider, exchange, dispatch) => {
 //---------------------------------------------------
 // SUBCRIBING TO EVENTS ON BLOCKCHAIN
 
-export const subscribeToEvents = (exchange, dispatch) => {
+export const subscribeToEvents = (exchange, giveaway, dispatch) => {
   exchange.on("Deposit", (token, user, amount, balance, event) => {
     dispatch({ type: "TRANSFER_SUCCESS", event });
   });
@@ -244,6 +249,10 @@ export const subscribeToEvents = (exchange, dispatch) => {
       });
     }
   );
+
+  giveaway.on("Donation", (amount, to, event) => {
+    dispatch({ type: "GIVEAWAY_SUCCESS", event });
+  });
 };
 
 //---------------------------------------------------
@@ -262,10 +271,10 @@ export const transferTokens = async (
   const signer = await provider.getSigner();
   const amountToTransfer = ethers.utils.parseUnits(amount.toString(), 18);
 
-  try {
-    dispatch({ type: "TRANSFER_REQUEST" });
-
-    if (transferType === "Deposit") {
+  dispatch({ type: "TRANSFER_REQUEST" });
+  // Depositing or display error message...
+  if (transferType === "Deposit") {
+    try {
       // Approving tokens...
       transaction = await token
         .connect(signer)
@@ -277,16 +286,21 @@ export const transferTokens = async (
         .connect(signer)
         .depositToken(token.address, amountToTransfer);
       await transaction.wait();
-    } else if (transferType === "Withdraw") {
+    } catch (error) {
+      handleError(error.message, dispatch);
+    }
+
+    // Withdrawing or display error message...
+  } else if (transferType === "Withdraw") {
+    try {
       // Withdrawing tokens...
       transaction = await exchange
         .connect(signer)
         .withdrawToken(token.address, amountToTransfer);
       await transaction.wait();
+    } catch (error) {
+      handleError(error.message, dispatch);
     }
-  } catch (error) {
-    console.error(error);
-    dispatch({ type: "TRANSFER_FAIL" });
   }
 };
 
@@ -320,8 +334,7 @@ export const makeBuyOrder = async (
       });
     await transaction.wait();
   } catch (error) {
-    console.error(error);
-    dispatch({ type: "NEW_ORDER_FAIL" });
+    handleError(error.message, dispatch);
   }
 };
 
@@ -428,4 +441,9 @@ export const removeRepeatedAlerts = (
   if ((isPending || isError) && account && alertRef.current !== null) {
     alertRef.current.className = "alert";
   }
+};
+
+export const selectFaucet = (chainId, dispatch) => {
+  dispatch({ type: "FAUCET_LINK_LOADED", faucet: config[chainId].faucet });
+  return config[chainId].faucet;
 };

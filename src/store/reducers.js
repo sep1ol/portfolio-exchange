@@ -94,6 +94,7 @@ const DEFAULT_EXCHANGE_STATE = {
     isError: false,
   },
   transferInProgress: false,
+  contractErrorMessage: "",
 };
 export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
   switch (action.type) {
@@ -190,6 +191,7 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
     case "TRANSFER_FAIL":
       return {
         ...state,
+        contractErrorMessage: action.contractErrorMessage,
         transaction: {
           transactionType: "Transfer",
           isPending: false,
@@ -197,7 +199,6 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           isError: true,
         },
         transferInProgress: false,
-        events: [action.event, ...state.events],
       };
     //----------------------------------
     // ORDER REQUESTS
@@ -215,6 +216,7 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
     case "NEW_ORDER_FAIL":
       return {
         ...state,
+        contractErrorMessage: action.contractErrorMessage,
         transaction: {
           transactionType: "New Order",
           isPending: false,
@@ -362,15 +364,28 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           isSuccessful: true,
           isError: false,
         },
+        events: [action.event, ...state.events],
       };
     case "GIVEAWAY_FAIL":
       return {
         ...state,
+        contractErrorMessage: action.contractErrorMessage,
         transaction: {
           transactionType: "Giveaway",
           isPending: false,
           isSuccessful: false,
           isError: true,
+        },
+      };
+    case "GIVEAWAY_COMPLETE":
+      return {
+        ...state,
+        contractErrorMessage: "",
+        transaction: {
+          transactionType: "",
+          isPending: false,
+          isSuccessful: false,
+          isError: false,
         },
       };
     default:
@@ -380,9 +395,9 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
 
 const DEFAULT_GIVEAWAY_STATE = {
   contract: null,
-  available: false,
+  available: true,
 };
-export const giveAway = (state = DEFAULT_PROVIDER_STATE, action) => {
+export const giveAway = (state = DEFAULT_GIVEAWAY_STATE, action) => {
   switch (action.type) {
     case "GIVEAWAY_CONTRACT_LOADED":
       return {
@@ -392,9 +407,13 @@ export const giveAway = (state = DEFAULT_PROVIDER_STATE, action) => {
     case "GIVEAWAY_INFO_LOADED":
       return {
         ...state,
-        lastTransfer: action.lastTransfer,
+        available: action.available,
       };
-
+    case "FAUCET_LINK_LOADED":
+      return {
+        ...state,
+        faucet: action.faucet,
+      };
     default:
       return state;
   }

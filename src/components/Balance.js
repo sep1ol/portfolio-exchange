@@ -28,6 +28,13 @@ const Balance = () => {
     (state) => state.exchange.transferInProgress
   );
 
+  // const transactionType = useSelector(
+  //   (state) => state.exchange.transaction.transactionType
+  // );
+  // const isSuccessful = useSelector(
+  //   (state) => state.exchange.transaction.isSuccessful
+  // );
+
   const tokens = useSelector((state) => state.tokens.contracts);
   const symbols = useSelector((state) => state.tokens.symbols);
   const tokenBalances = useSelector((state) => state.tokens.balances);

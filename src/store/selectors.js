@@ -71,7 +71,12 @@ export const myEventsSelector = createSelector(
       events = events.filter((e) => e !== undefined);
 
       // Getting what events belong to the user
-      events = events.filter((e) => String(e.args.user) === String(account));
+      events = events.filter((e) => {
+        if (e.args) {
+          return String(e.args.user) === String(account);
+        }
+      });
+
       return events;
     } else {
       return null;

@@ -58,15 +58,15 @@ function App() {
       dispatch
     );
 
-    await loadFreeTokensContract(
-      config[chainId].freeTokens.address,
+    const giveaway = await loadFreeTokensContract(
+      config[chainId].giveawayContract,
       provider,
       dispatch
     );
 
     loadAllOrders(provider, exchange, dispatch);
 
-    subscribeToEvents(exchange, dispatch);
+    subscribeToEvents(exchange, giveaway, dispatch);
   };
 
   useEffect(() => {

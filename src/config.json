@@ -1,24 +1,10 @@
 {
     "31337": {
-        "exchange":{
-            "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-        },
-        "sep1ol":{
-            "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-        },
-        "mETH":{
-            "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-        },
-        "mUSDT":{
-            "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-        },
+        "name": "Localhost",
+        "chainId_hexa": "0x7A69",
         "explorerURL": "#",
-        "freeTokens":{
-            "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-            "faucet": ""
-        }
-    },
-    "42":{
+        "faucet": "",
+        "giveawayContract": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
         "exchange":{
             "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
         },
@@ -30,31 +16,14 @@
         },
         "mUSDT":{
             "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-        },
-        "explorerURL":"https://kovan.etherscan.io/",
-        "freeTokens":{
-            "address": ""
-        }
-    },
-    "4":{
-        "exchange":{
-            "address": "0x049D5A74f7194112aFe94E5915A52A49BA4D62d0"
-        },
-        "sep1ol":{
-            "address": "0x9cE4D4EFC427787DDB73a110Ae6CfD12A3f0C1bd"
-        },
-        "mETH":{
-            "address": "0x1331b9D51153Df9b9174c847ee08eFd4817a5a1e"
-        },
-        "mUSDT":{
-            "address": "0xA32D0cC3426914151359c34CB7D427d1f1478750"
-        },
-        "explorerURL":"https://rinkeby.etherscan.io/",
-        "freeTokens":{
-            "address": ""
         }
     },
     "5":{
+        "name": "Goerli",
+        "chainId_hexa": "0x5",
+        "explorerURL": "https://goerli.etherscan.io/",
+        "faucet": "https://goerlifaucet.com/",
+        "giveawayContract": "",
         "exchange":{
             "address": "0x049D5A74f7194112aFe94E5915A52A49BA4D62d0"
         },
@@ -66,9 +35,24 @@
         },
         "mUSDT":{
             "address": "0xA32D0cC3426914151359c34CB7D427d1f1478750"
+        }
+    },
+    "11155111":{
+        "name": "Sepolia",
+        "chainId_hexa": "0xAA36A7",
+        "explorerURL": "https://sepolia.etherscan.io/",
+        "faucet": "https://faucet.sepolia.dev/",
+        "giveawayContract": "",
+        "exchange":{
+            "address": ""
         },
-        "explorerURL":"https://goerli.etherscan.io//",
-        "freeTokens":{
+        "sep1ol":{
+            "address": ""
+        },
+        "mETH":{
+            "address": ""
+        },
+        "mUSDT":{
             "address": ""
         }
     }

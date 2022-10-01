@@ -26,6 +26,8 @@ contract FreeTokens {
     // @dev: lastTransfer [_user] -> returns timestamp
     mapping(address => uint256) public lastTransfer;
 
+    event Donation(uint256 amount, address user);
+
     constructor(
         address _deployer,
         address _token1,
@@ -102,6 +104,9 @@ contract FreeTokens {
 
         // Updating the timestamp mapping
         lastTransfer[msg.sender] = block.timestamp;
+
+        // Emitting event
+        emit Donation(_amount, msg.sender);
     }
 
     function transferIsAvailable(uint256 _lastTransfer)

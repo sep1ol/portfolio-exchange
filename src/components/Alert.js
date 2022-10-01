@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import config from "../config.json";
-import closeButton from "../assets/close.svg";
+import closeButton from "../assets/close-white.svg";
 
 import { myEventsSelector } from "../store/selectors";
 import { removeRepeatedAlerts } from "../store/interactions";
@@ -20,6 +20,10 @@ const Alert = () => {
     (state) => state.exchange.transaction.isSuccessful
   );
   const isError = useSelector((state) => state.exchange.transaction.isError);
+
+  const contractErrorMessage = useSelector(
+    (state) => state.exchange.contractErrorMessage
+  );
 
   const removeAlertHandler = () => {
     alertRef.current.className = "alert alert--remove";
@@ -79,7 +83,12 @@ const Alert = () => {
           onClick={removeAlertHandler}
           className="alert alert--remove"
         >
-          <h1>Transaction Will Fail</h1>
+          {contractErrorMessage ? (
+            <h1>{contractErrorMessage}</h1>
+          ) : (
+            <h1>Transaction Will Fail</h1>
+          )}
+
           <img src={closeButton} alt="close" className="button--close" />
         </div>
       ) : (
