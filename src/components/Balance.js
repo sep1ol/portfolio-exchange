@@ -74,7 +74,7 @@ const Balance = () => {
         );
       } else if (selectedToken === "token2") {
         return (
-          Number(token2TransferAmount) <= Number(tokenBalances[0]) &&
+          Number(token2TransferAmount) <= Number(tokenBalances[1]) &&
           Number(token2TransferAmount) >= 0
         );
       }
