@@ -223,7 +223,6 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           isSuccessful: false,
           isError: true,
         },
-        events: [action.event, ...state.events],
       };
     case "NEW_ORDER_SUCCESS":
       let data;
@@ -378,6 +377,30 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
         },
       };
     case "GIVEAWAY_COMPLETE":
+      return {
+        ...state,
+        contractErrorMessage: "",
+        transaction: {
+          transactionType: "",
+          isPending: false,
+          isSuccessful: false,
+          isError: false,
+        },
+      };
+    //----------------------------------
+    // HANDLING ERRORS
+    case "TRANSACTION_ERROR":
+      return {
+        ...state,
+        contractErrorMessage: action.msg,
+        transaction: {
+          transactionType: action.transactionType,
+          isPending: false,
+          isSuccessful: false,
+          isError: true,
+        },
+      };
+    case "RESET_ALERT":
       return {
         ...state,
         contractErrorMessage: "",

@@ -12,7 +12,8 @@ const Navbar = () => {
   const balance = useSelector((state) => state.provider.balance);
   const chainId = useSelector((state) => state.provider.chainId);
 
-  const NETWORKS = ["31337", "5", "11155111"];
+  const NETWORKS = ["5", "11155111"];
+  // const NETWORKS = ["31337", "5", "11155111"];
 
   const connectHandler = async () => {
     await loadAccount(dispatch, provider);
@@ -38,7 +39,7 @@ const Navbar = () => {
           <select
             name="networks"
             id="networks"
-            value={config[chainId] ? `0x${chainId.toString(16)}` : "0"}
+            value={config[chainId] ? config[chainId].chainId_hexa : "0"}
             onChange={(e) => {
               networkHandler(e);
             }}
@@ -52,9 +53,9 @@ const Navbar = () => {
             <option value={config[NETWORKS[1]].chainId_hexa}>
               {config[NETWORKS[1]].name}
             </option>
-            <option value={config[NETWORKS[2]].chainId_hexa}>
+            {/* <option value={config[NETWORKS[2]].chainId_hexa}>
               {config[NETWORKS[2]].name}
-            </option>
+            </option> */}
           </select>
         )}
       </div>

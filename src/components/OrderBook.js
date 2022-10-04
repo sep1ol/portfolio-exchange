@@ -7,7 +7,7 @@ import sort from "../assets/sort.svg";
 import { orderBookSelector } from "../store/selectors";
 
 // Import fill order function
-import { fillOrder } from "../store/interactions";
+import { fillOrder, sortTable } from "../store/interactions";
 
 const OrderBook = () => {
   const dispatch = useDispatch();
@@ -20,6 +20,8 @@ const OrderBook = () => {
   const fillOrderHandler = (order) => {
     fillOrder(provider, exchange, order, dispatch);
   };
+
+  const sortHandler = () => {};
 
   return (
     <div className="component exchange__orderbook">
@@ -37,15 +39,15 @@ const OrderBook = () => {
               <tr>
                 <th>
                   {symbols && symbols[0]}
-                  <img src={sort} alt="Sort" />
+                  <img src={sort} onClick={sortHandler} alt="Sort" />
                 </th>
                 <th>
                   {symbols && symbols[0]}/{symbols && symbols[1]}
-                  <img src={sort} alt="Sort" />
+                  <img src={sort} onClick={sortHandler} alt="Sort" />
                 </th>
                 <th>
                   {symbols && symbols[1]}
-                  <img src={sort} alt="Sort" />
+                  <img src={sort} onClick={sortHandler} alt="Sort" />
                 </th>
               </tr>
             </thead>
@@ -78,15 +80,15 @@ const OrderBook = () => {
               <tr>
                 <th>
                   {symbols && symbols[0]}
-                  <img src={sort} alt="Sort" />
+                  <img src={sort} onClick={sortHandler} alt="Sort" />
                 </th>
                 <th>
                   {symbols && symbols[0]}/{symbols && symbols[1]}
-                  <img src={sort} alt="Sort" />
+                  <img src={sort} onClick={sortHandler} alt="Sort" />
                 </th>
                 <th>
                   {symbols && symbols[1]}
-                  <img src={sort} alt="Sort" />
+                  <img src={sort} onClick={sortHandler} alt="Sort" />
                 </th>
               </tr>
             </thead>

@@ -1,29 +1,29 @@
 {
-    "31337": {
-        "name": "Localhost",
-        "chainId_hexa": "0x7A69",
-        "explorerURL": "#",
-        "faucet": "",
-        "giveawayContract": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-        "exchange":{
-            "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-        },
-        "sep1ol":{
-            "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-        },
-        "mETH":{
-            "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-        },
-        "mUSDT":{
-            "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-        }
-    },
     "5":{
         "name": "Goerli",
         "chainId_hexa": "0x5",
         "explorerURL": "https://goerli.etherscan.io/",
         "faucet": "https://goerlifaucet.com/",
-        "giveawayContract": "",
+        "giveawayContract": "0x3b9162eE0d7Ae17755E72B4C85564baf4fc22637",
+        "exchange":{
+            "address": "0xE0eF50555969C903eb228195F61a9d80fC42c6b6"
+        },
+        "sep1ol":{
+            "address": "0x7951a6C62F2014E5944b1389F04a2dE38A4b0351"
+        },
+        "mETH":{
+            "address": "0x653b56aCeB93b84E36D57979EABe56f3accd43ce"
+        },
+        "mUSDT":{
+            "address": "0xACd9497F90842253Ca314505020fe6bde38DBf65"
+        }
+    },
+    "11155111":{
+        "name": "Sepolia",
+        "chainId_hexa": "0xAA36A7",
+        "explorerURL": "https://sepolia.etherscan.io/",
+        "faucet": "https://faucet.sepolia.dev/",
+        "giveawayContract": "0xfb93a47aF58A3A22A63EE7286Df43c43F071e7b6",
         "exchange":{
             "address": "0x049D5A74f7194112aFe94E5915A52A49BA4D62d0"
         },
@@ -35,25 +35,6 @@
         },
         "mUSDT":{
             "address": "0xA32D0cC3426914151359c34CB7D427d1f1478750"
-        }
-    },
-    "11155111":{
-        "name": "Sepolia",
-        "chainId_hexa": "0xAA36A7",
-        "explorerURL": "https://sepolia.etherscan.io/",
-        "faucet": "https://faucet.sepolia.dev/",
-        "giveawayContract": "",
-        "exchange":{
-            "address": ""
-        },
-        "sep1ol":{
-            "address": ""
-        },
-        "mETH":{
-            "address": ""
-        },
-        "mUSDT":{
-            "address": ""
         }
     }
 }

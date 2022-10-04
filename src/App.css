@@ -498,21 +498,25 @@ hr {
   background-color: rgba(255, 255, 255, 0.9);
   display: flex;
   flex-direction: column;
-  padding: 2em;
   border-radius: 15px;
-  width: 40vw;
-  height: 50vh;
   align-items: center;
   justify-content: center;
+
+  width: 80%;
+  height: 75vh;
+  padding: 2em;
 }
+/* 1600px ; 1200px ; 992 px ; 768px ; 576px */
 
 .btn--popup {
-  width: 60%;
   color: black;
   border-color: black;
   text-align: center;
   font-size: 1em;
   text-decoration: none;
+
+  width: 85%;
+  font-size: 0.85em;
 }
 
 .btn--popup:hover {
@@ -521,19 +525,21 @@ hr {
 
 .h1--popup {
   color: black;
-  font-size: 1.2em;
-  width: 60%;
   text-align: center;
+
   margin-bottom: 0.5em;
+  width: 90%;
+  font-size: 1em;
 }
 
 .close--popup {
   position: absolute;
-  top: 0.5em;
-  right: 0.7em;
   border-radius: 50%;
   color: black;
   padding: 0.6em;
+
+  top: 0.5em;
+  right: 0.7em;
 }
 .close--popup:hover {
   cursor: pointer;
@@ -707,6 +713,20 @@ table td {
   .exchange__header--brand h1 {
     display: contents;
   }
+
+  .popup {
+    width: 80%;
+    height: 80vh;
+  }
+  .h1--popup {
+    width: 90%;
+    font-size: 1.05em;
+  }
+  .btn--popup {
+    font-size: 0.85em;
+    font-size: 1em;
+    width: 85%;
+  }
 }
 
 @media screen and (min-width: 768px) {
@@ -759,6 +779,18 @@ table td {
     grid-column-start: 7;
     grid-column-end: 13;
   }
+
+  .popup {
+    width: 70%;
+    height: 70vh;
+  }
+  .h1--popup {
+    font-size: 1.3em;
+  }
+  .btn--popup {
+    font-size: 1.1em;
+    width: 85%;
+  }
 }
 
 @media screen and (min-width: 992px) {
@@ -794,6 +826,16 @@ table td {
 
     grid-row-start: 1;
     grid-row-end: 3;
+  }
+
+  .popup {
+    width: 60%;
+    height: 60vh;
+  }
+  .h1--popup {
+  }
+  .btn--popup {
+    width: 75%;
   }
 }
 
@@ -832,6 +874,15 @@ table td {
   .exchange__orders {
     grid-row: 3;
   }
+
+  .popup {
+    width: 55%;
+  }
+  .h1--popup {
+  }
+  .btn--popup {
+    width: 65%;
+  }
 }
 
 @media screen and (min-width: 1400px) {
@@ -856,5 +907,14 @@ table td {
   .exchange__header--networks {
     grid-column-start: 4;
     grid-column-end: 5;
+  }
+
+  .popup {
+    width: 45%;
+    height: 70vh;
+  }
+  .h1--popup {
+  }
+  .btn--popup {
   }
 }

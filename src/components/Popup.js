@@ -75,11 +75,11 @@ const Popup = () => {
             className="close--popup"
           />
           <h1 className="h1--popup">
-            Get free tokens to use the exchange <br />
-            on Goerli/Rinkeby testnets!
+            Get free tokens I created to use on the exchange on Goerli/Sepolia
+            PoS testnets!
           </h1>
           <button onClick={giveAwayHandler} className="button btn--popup">
-            ** Get Free SEPT/mETH/mUSDT
+            **GET [SEPT/mETH/mUSDT]
           </button>
           {chainId && (
             <a
@@ -87,7 +87,7 @@ const Popup = () => {
               target="_blank"
               className="button btn--popup"
             >
-              ** Get Free {config[chainId].name}'s ETH to sign transactions
+              **GET [{config[chainId].name}'s ETH] to sign transactions
             </a>
           )}
 

@@ -152,7 +152,7 @@ export const giveTokens = async (provider, contract, dispatch) => {
     await transaction.wait();
     dispatch({ type: "GIVEAWAY_SUCCESS" });
   } catch (error) {
-    handleError(error.message, dispatch);
+    handleError(error.message, "Giveaway", dispatch);
   }
 };
 
@@ -287,7 +287,7 @@ export const transferTokens = async (
         .depositToken(token.address, amountToTransfer);
       await transaction.wait();
     } catch (error) {
-      handleError(error.message, dispatch);
+      handleError(error.message, "Transfer", dispatch);
     }
 
     // Withdrawing or display error message...
@@ -299,7 +299,7 @@ export const transferTokens = async (
         .withdrawToken(token.address, amountToTransfer);
       await transaction.wait();
     } catch (error) {
-      handleError(error.message, dispatch);
+      handleError(error.message, "Transfer", dispatch);
     }
   }
 };
@@ -334,7 +334,7 @@ export const makeBuyOrder = async (
       });
     await transaction.wait();
   } catch (error) {
-    handleError(error.message, dispatch);
+    handleError(error.message, "Order", dispatch);
   }
 };
 
@@ -364,8 +364,7 @@ export const makeSellOrder = async (
       .makeOrder(tokenGet, amountGet, tokenGive, amountGive);
     await transaction.wait();
   } catch (error) {
-    console.error(error);
-    dispatch({ type: "NEW_ORDER_FAIL" });
+    handleError(error.message, "Order", dispatch);
   }
 };
 
@@ -379,7 +378,7 @@ export const cancelOrder = async (provider, exchange, order, dispatch) => {
     const transaction = await exchange.connect(signer).cancelOrder(order.id);
     await transaction.wait();
   } catch (error) {
-    dispatch({ type: "ORDER_CANCEL_FAIL" });
+    handleError(error.message, "Cancel Order", dispatch);
   }
 };
 
@@ -391,7 +390,7 @@ export const fillOrder = async (provider, exchange, order, dispatch) => {
     const transaction = await exchange.connect(signer).fillOrder(order.id);
     await transaction.wait();
   } catch (error) {
-    dispatch({ type: "ORDER_FILL_FAIL" });
+    handleError(error.message, "Fill Order", dispatch);
   }
 };
 
@@ -446,4 +445,28 @@ export const removeRepeatedAlerts = (
 export const selectFaucet = (chainId, dispatch) => {
   dispatch({ type: "FAUCET_LINK_LOADED", faucet: config[chainId].faucet });
   return config[chainId].faucet;
+};
+
+//---------------------------------------------------
+// HANDLING ERRORS
+export const handleError = (msg, transactionType, dispatch) => {
+  const ERROR_LIST = [
+    "Wait 24 hours before the next transfer.",
+    "Transfer to exchange not completed",
+    "Insufficient balance to withdraw",
+    "Insufficient balance for creating order",
+    "User denied transaction signature.",
+    "Insufficient funds to complete order",
+  ];
+
+  for (let i = 0; i < ERROR_LIST.length; i++) {
+    if (msg.includes(ERROR_LIST[i])) {
+      dispatch({
+        type: "TRANSACTION_ERROR",
+        transactionType,
+        msg: ERROR_LIST[i],
+      });
+      break;
+    }
+  }
 };

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import config from "../config.json";
 import closeButton from "../assets/close-white.svg";
 
@@ -7,6 +7,7 @@ import { myEventsSelector } from "../store/selectors";
 import { removeRepeatedAlerts } from "../store/interactions";
 
 const Alert = () => {
+  const dispatch = useDispatch();
   const alertRef = useRef(null);
 
   const account = useSelector((state) => state.provider.account);
@@ -27,6 +28,7 @@ const Alert = () => {
 
   const removeAlertHandler = () => {
     alertRef.current.className = "alert alert--remove";
+    dispatch({ type: "RESET_ALERT" });
   };
 
   useEffect(() => {
