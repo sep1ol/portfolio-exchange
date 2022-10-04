@@ -63,6 +63,15 @@ export const tokens = (state = DEFAULT_TOKENS_STATE, action) => {
         loaded: true,
         balances: [...state.balances, action.balance],
       };
+    case "GIVEAWAY_UPDATE_WALLET":
+      let wallet = [...state.balances];
+      wallet[0] = String(Number(wallet[0]) + Number(action.amount));
+      wallet[1] = String(Number(wallet[1]) + Number(action.amount));
+      return {
+        ...state,
+        balances: [...wallet],
+      };
+
     default:
       return state;
   }
@@ -374,17 +383,6 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
           isPending: false,
           isSuccessful: false,
           isError: true,
-        },
-      };
-    case "GIVEAWAY_COMPLETE":
-      return {
-        ...state,
-        contractErrorMessage: "",
-        transaction: {
-          transactionType: "",
-          isPending: false,
-          isSuccessful: false,
-          isError: false,
         },
       };
     //----------------------------------

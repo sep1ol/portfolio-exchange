@@ -144,13 +144,16 @@ export const loadGiveawayInfo = async (contract, user, dispatch) => {
 export const giveTokens = async (provider, contract, dispatch) => {
   const signer = await provider.getSigner();
 
+  const DONATION_AMOUNT = "100";
+
   dispatch({ type: "GIVEAWAY_REQUEST" });
   try {
     const transaction = await contract
       .connect(signer)
-      .transferToUser(ethers.utils.parseUnits(String("100"), "ether"));
+      .transferToUser(ethers.utils.parseUnits(DONATION_AMOUNT, "ether"));
     await transaction.wait();
     dispatch({ type: "GIVEAWAY_SUCCESS" });
+    dispatch({ type: "GIVEAWAY_UPDATE_WALLET", amount: DONATION_AMOUNT });
   } catch (error) {
     handleError(error.message, "Giveaway", dispatch);
   }
