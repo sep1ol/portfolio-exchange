@@ -98,20 +98,15 @@ export const loadReservedTokens = async (
 ) => {
   // Loading reserved tokens...
   // Token1
-  let reserved = ethers.utils.formatEther(
+  let token1 = ethers.utils.formatEther(
     await exchange.reservedTokens(tokens[0].address, account)
   );
-  dispatch({
-    type: "RESERVED_TOKEN_1_BALANCE_LOADED",
-    reservedToken: reserved,
-  });
-  // Token2
-  reserved = ethers.utils.formatEther(
+  let token2 = ethers.utils.formatEther(
     await exchange.reservedTokens(tokens[1].address, account)
   );
   dispatch({
-    type: "RESERVED_TOKEN_2_BALANCE_LOADED",
-    reservedToken: reserved,
+    type: "RESERVED_TOKENS_BALANCE_LOADED",
+    amounts: [token1, token2],
   });
 };
 
@@ -209,6 +204,8 @@ export const subscribeToEvents = (exchange, giveaway, dispatch) => {
       dispatch({ type: "NEW_ORDER_SUCCESS", order, event, amountGive });
       dispatch({
         type: "UPDATE_RESERVED",
+        tokenGive,
+        amountGive,
       });
     }
   );
@@ -460,6 +457,7 @@ export const handleError = (msg, transactionType, dispatch) => {
     "Insufficient balance for creating order",
     "User denied transaction signature.",
     "Insufficient funds to complete order",
+    "Not connected to the blockchain.",
   ];
 
   for (let i = 0; i < ERROR_LIST.length; i++) {

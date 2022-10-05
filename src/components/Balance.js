@@ -1,4 +1,4 @@
-import dappLogo from "../assets/dapp.svg";
+import septLogo from "../assets/sept.png";
 import ethLogo from "../assets/eth.svg";
 import usdtLogo from "../assets/tether.svg";
 import { useEffect, useState, useRef } from "react";
@@ -185,7 +185,7 @@ const Balance = () => {
           <p>
             <small>Token</small>
             <br />
-            <img src={dappLogo} alt="token logo" />
+            <img className="logo--sept" src={septLogo} alt="token logo" />
             {symbols && symbols[0]}
           </p>
           <p>

@@ -149,22 +149,18 @@ export const exchange = (state = DEFAULT_EXCHANGE_STATE, action) => {
         balances: [action.balance],
       };
     case "EXCHANGE_TOKEN_2_BALANCE_LOADED":
-      return {
-        ...state,
-        balances: [...state.balances, action.balance],
-      };
+      if (state.balances.length === 1) {
+        return {
+          ...state,
+          balances: [...state.balances, action.balance],
+        };
+      }
     //----------------------------------
     // LOADING RESERVED TOKENS
-    case "RESERVED_TOKEN_1_BALANCE_LOADED":
+    case "RESERVED_TOKENS_BALANCE_LOADED":
       return {
         ...state,
-        reservedBalances: [action.reservedToken],
-        updateReserved: false,
-      };
-    case "RESERVED_TOKEN_2_BALANCE_LOADED":
-      return {
-        ...state,
-        reservedBalances: [...state.reservedBalances, action.reservedToken],
+        reservedBalances: [...action.amounts],
         updateReserved: false,
       };
     //----------------------------------

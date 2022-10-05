@@ -1,6 +1,10 @@
 import { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { makeBuyOrder, makeSellOrder } from "../store/interactions";
+import {
+  handleError,
+  makeBuyOrder,
+  makeSellOrder,
+} from "../store/interactions";
 
 const Order = () => {
   const dispatch = useDispatch();
@@ -15,8 +19,7 @@ const Order = () => {
   const provider = useSelector((state) => state.provider.connection);
   const exchange = useSelector((state) => state.exchange.contract);
   const tokens = useSelector((state) => state.tokens.contracts);
-  const tokenBalances = useSelector((state) => state.tokens.balances);
-  const transaction = useSelector((state) => state.exchange.transaction);
+  const tokenBalances = useSelector((state) => state.exchange.balances);
 
   const tabHandler = (e) => {
     if (e.target.className !== buyRef.current.className) {
@@ -32,28 +35,49 @@ const Order = () => {
 
   const buyHandler = (e) => {
     e.preventDefault();
-
+    // Check necessary data
     if (tokenBalances) {
-      if (Number(price) >= 0 && Number(price) <= Number(tokenBalances[0])) {
-        const order = { amount, price };
-        makeBuyOrder(provider, exchange, tokens, order, dispatch);
+      // Check positive price
+      if (Number(price) >= 0) {
+        // Check balance
+        if (Number(price) * Number(amount) <= Number(tokenBalances[1])) {
+          const order = { amount, price };
+          makeBuyOrder(provider, exchange, tokens, order, dispatch);
+          setAmount("");
+          setPrice("");
+        } else {
+          handleError(
+            "Insufficient balance for creating order",
+            "Order",
+            dispatch
+          );
+        }
+      } else {
+        alert("Price cannot be negative.");
       }
     }
-    setAmount("");
-    setPrice("");
   };
 
   const sellHandler = (e) => {
     e.preventDefault();
-
     if (tokenBalances) {
-      if (Number(amount) >= 0 && Number(amount) <= Number(tokenBalances[0])) {
-        const order = { amount, price };
-        makeSellOrder(provider, exchange, tokens, order, dispatch);
+      if (Number(price) >= 0) {
+        if (Number(amount) <= Number(tokenBalances[0])) {
+          const order = { amount, price };
+          makeSellOrder(provider, exchange, tokens, order, dispatch);
+          setAmount("");
+          setPrice("");
+        } else {
+          handleError(
+            "Insufficient balance for creating order",
+            "Order",
+            dispatch
+          );
+        }
+      } else {
+        alert("Price cannot be negative.");
       }
     }
-    setAmount("");
-    setPrice("");
   };
 
   return (
