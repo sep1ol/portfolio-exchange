@@ -514,9 +514,8 @@ hr {
 /* 1600px ; 1200px ; 992 px ; 768px ; 576px */
 
 .btn--popup {
-  color: var(--clr-blue);
-  /* color: black; */
-  color: var(--clr-blue);
+  color: white;
+  background-color: var(--clr-blue);
   text-align: center;
   font-size: 1em;
   text-decoration: none;
@@ -526,7 +525,9 @@ hr {
 }
 
 .btn--popup:hover {
-  background-color: var(--clr-blue);
+  background-color: transparent;
+  color: var(--clr-blue);
+  border-color: var(--clr-blue);
 }
 
 .h1--popup {
