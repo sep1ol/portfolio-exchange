@@ -13,7 +13,6 @@ async function main() {
   const sepiolAddress = config[chainId].sep1ol.address;
   const tetherAddress = config[chainId].mUSDT.address;
   const ethAddress = config[chainId].mETH.address;
-  const exchangeAddress = config[chainId].exchange.address;
   const freeTokensAddress = config[chainId].giveawayContract;
 
   ///////////////////////////

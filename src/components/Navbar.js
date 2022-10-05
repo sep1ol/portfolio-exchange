@@ -12,8 +12,8 @@ const Navbar = () => {
   const balance = useSelector((state) => state.provider.balance);
   const chainId = useSelector((state) => state.provider.chainId);
 
-  // const NETWORKS = ["5", "11155111"];
-  const NETWORKS = ["31337", "5", "11155111"];
+  const NETWORKS = ["5", "11155111"];
+  // const NETWORKS = ["31337", "5", "11155111"];
 
   const connectHandler = async () => {
     await loadAccount(dispatch, provider);
@@ -53,9 +53,9 @@ const Navbar = () => {
             <option value={config[NETWORKS[1]].chainId_hexa}>
               {config[NETWORKS[1]].name}
             </option>
-            <option value={config[NETWORKS[2]].chainId_hexa}>
+            {/* <option value={config[NETWORKS[2]].chainId_hexa}>
               {config[NETWORKS[2]].name}
-            </option>
+            </option> */}
           </select>
         )}
       </div>
@@ -100,3 +100,23 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+// "31337": {
+//   "name": "Localhost",
+//   "chainId_hexa": "0x7A69",
+//   "explorerURL": "#",
+//   "faucet": "",
+//   "giveawayContract": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+//   "exchange":{
+//       "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+//   },
+//   "sep1ol":{
+//       "address": "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+//   },
+//   "mETH":{
+//       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+//   },
+//   "mUSDT":{
+//       "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+//   }
+// },
