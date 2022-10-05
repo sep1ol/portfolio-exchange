@@ -105,8 +105,9 @@ const Popup = () => {
         )
       ) : (
         <div className="popup">
-          <h1>
+          <h1 className="popup--warning">
             Metamask not identified on web browser.
+            <br />
             <br />
             Please install Metamask and reload the page.
           </h1>
