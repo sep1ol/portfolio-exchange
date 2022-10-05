@@ -1,8 +1,3 @@
-// Displayed information:
-// 1) Get free SEPT, mETH and mUSDT
-// 1.1) Link to Faucet?
-// 2) Visit Sepiol's Website
-// 3) Book a 15 minute call with me
 import closeButton from "../assets/close-black.svg";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -64,47 +59,57 @@ const Popup = () => {
 
   return (
     <>
-      {popupActive && (
-        <div className="popup">
-          <img
-            onClick={() => {
-              setPopupActive((prev) => !prev);
-            }}
-            src={closeButton}
-            alt="Close popup button"
-            className="close--popup"
-          />
-          <h1 className="h1--popup">
-            Get free tokens I created to use on the exchange on Goerli/Sepolia
-            PoS testnets!
-          </h1>
-          <button onClick={giveAwayHandler} className="button btn--popup">
-            **GET [SEPT/mETH/mUSDT]
-          </button>
-          {chainId && (
+      {typeof window.ethereum !== "undefined" ? (
+        popupActive && (
+          <div className="popup">
+            <img
+              onClick={() => {
+                setPopupActive((prev) => !prev);
+              }}
+              src={closeButton}
+              alt="Close popup button"
+              className="close--popup"
+            />
+            <h1 className="h1--popup">
+              Get free tokens I created to use on the exchange on Goerli/Sepolia
+              PoS testnets!
+            </h1>
+            <button onClick={giveAwayHandler} className="button btn--popup">
+              **GET [SEPT/mETH/mUSDT]
+            </button>
+            {chainId && (
+              <a
+                href={config[chainId].faucet}
+                target="_blank"
+                className="button btn--popup"
+              >
+                **GET [{config[chainId].name}'s ETH] to sign transactions
+              </a>
+            )}
+
             <a
-              href={config[chainId].faucet}
+              href="https://www.sepiol.dev"
               target="_blank"
               className="button btn--popup"
             >
-              **GET [{config[chainId].name}'s ETH] to sign transactions
+              Visit my professional website
             </a>
-          )}
-
-          <a
-            href="https://www.sepiol.dev"
-            target="_blank"
-            className="button btn--popup"
-          >
-            Visit my professional website
-          </a>
-          <a
-            href="https://calendly.com/sep1ol/meet-me"
-            target="_blank"
-            className="button btn--popup"
-          >
-            Book a 15min call with me today!
-          </a>
+            <a
+              href="https://calendly.com/sep1ol/meet-me"
+              target="_blank"
+              className="button btn--popup"
+            >
+              Book a 15min call with me today!
+            </a>
+          </div>
+        )
+      ) : (
+        <div className="popup">
+          <h1>
+            Metamask not identified on web browser.
+            <br />
+            Please install Metamask and reload the page.
+          </h1>
         </div>
       )}
     </>
