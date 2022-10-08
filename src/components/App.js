@@ -34,7 +34,6 @@ function App() {
   const chainId = useSelector((state) => state.provider.chainId);
   const provider = useSelector((state) => state.provider.connection);
   const correctNetwork = useSelector((state) => state.provider.correctNetwork);
-  console.log(correctNetwork);
 
   const loadBlockchainData = async () => {
     // Connect Ethers to blockchain
@@ -56,7 +55,6 @@ function App() {
   };
 
   const loadExchangeData = async () => {
-    correctNetwork.current = true;
     // Fetch tokens' contracts and symbols
     const SEPT = config[chainId].sep1ol.address;
     const mETH = config[chainId].mETH.address;
@@ -82,12 +80,13 @@ function App() {
 
   useEffect(() => {
     loadBlockchainData();
+    console.log(correctNetwork, chainId);
     if (correctNetwork !== null && correctNetwork) {
       loadExchangeData();
-    } else {
+    } else if (chainId !== null) {
       changeNetwork("0x" + ACCEPTED_NETWORKS[0]);
     }
-  }, [correctNetwork]);
+  }, [correctNetwork, chainId]);
 
   return (
     <>
@@ -122,7 +121,7 @@ function App() {
             }}
           >
             The exchange is supported on Goerli and Sepolia Testnets, please
-            change and reload the page.
+            accept the request on Metamask to switch Network.
           </h1>
         </div>
       )}
