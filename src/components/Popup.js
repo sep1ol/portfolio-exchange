@@ -27,6 +27,7 @@ const Popup = () => {
   const isSuccessful = useSelector(
     (state) => state.exchange.transaction.isSuccessful
   );
+  const correctNetwork = useSelector((state) => state.provider.correctNetwork);
 
   useEffect(() => {
     if (isSuccessful && transactionType === "Giveaway") {
@@ -56,10 +57,10 @@ const Popup = () => {
       giveTokens(provider, freeTokensContract, dispatch);
     }
   };
-
+  console.log(correctNetwork);
   return (
     <>
-      {typeof window.ethereum !== "undefined" ? (
+      {typeof window.ethereum !== "undefined" && correctNetwork ? (
         popupActive && (
           <div className="popup">
             <img
@@ -77,7 +78,7 @@ const Popup = () => {
             <button onClick={giveAwayHandler} className="button btn--popup">
               **GET [SEPT/mETH/mUSDT]
             </button>
-            {chainId && (
+            {chainId && correctNetwork && (
               <a
                 href={config[chainId].faucet}
                 target="_blank"

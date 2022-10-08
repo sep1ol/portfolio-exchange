@@ -471,3 +471,16 @@ export const handleError = (msg, transactionType, dispatch) => {
     }
   }
 };
+
+//---------------------------------------------------
+// HANDLING NETWORK
+export const ACCEPTED_NETWORKS = ["5", "11155111"];
+
+export const changeNetwork = async (chainId, dispatch) => {
+  await window.ethereum.request({
+    method: "wallet_switchEthereumChain",
+    params: [{ chainId }],
+  });
+  dispatch({ type: "RIGHT_NETWORK_SELECTED" });
+  window.location.reload();
+};

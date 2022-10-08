@@ -4,6 +4,7 @@ import eth from "../assets/eth.svg";
 import Blockies from "react-blockies";
 import { loadAccount } from "../store/interactions";
 import config from "../config.json";
+import { ACCEPTED_NETWORKS } from "../store/interactions";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -12,8 +13,7 @@ const Navbar = () => {
   const balance = useSelector((state) => state.provider.balance);
   const chainId = useSelector((state) => state.provider.chainId);
 
-  const NETWORKS = ["5", "11155111"];
-  // const NETWORKS = ["31337", "5", "11155111"];
+  const NETWORKS = [...ACCEPTED_NETWORKS];
 
   const connectHandler = async () => {
     await loadAccount(dispatch, provider);

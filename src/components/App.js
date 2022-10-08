@@ -1,7 +1,9 @@
 import "../App.css";
 import config from "../config.json";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+import { ACCEPTED_NETWORKS } from "../store/interactions";
 
 import Popup from "./Popup";
 import Navbar from "./Navbar";
@@ -23,10 +25,16 @@ import {
   loadAllOrders,
   subscribeToEvents,
   loadFreeTokensContract,
+  changeNetwork,
 } from "../store/interactions";
 
 function App() {
   const dispatch = useDispatch();
+
+  const chainId = useSelector((state) => state.provider.chainId);
+  const provider = useSelector((state) => state.provider.connection);
+  const correctNetwork = useSelector((state) => state.provider.correctNetwork);
+  console.log(correctNetwork);
 
   const loadBlockchainData = async () => {
     // Connect Ethers to blockchain
@@ -45,7 +53,10 @@ function App() {
     window.ethereum.on("chainChanged", () => {
       window.location.reload();
     });
+  };
 
+  const loadExchangeData = async () => {
+    correctNetwork.current = true;
     // Fetch tokens' contracts and symbols
     const SEPT = config[chainId].sep1ol.address;
     const mETH = config[chainId].mETH.address;
@@ -71,30 +82,50 @@ function App() {
 
   useEffect(() => {
     loadBlockchainData();
-  }, []);
+    if (correctNetwork !== null && correctNetwork) {
+      loadExchangeData();
+    } else {
+      changeNetwork("0x" + ACCEPTED_NETWORKS[0]);
+    }
+  }, [correctNetwork]);
 
   return (
     <>
-      <Popup />
-      <div>
-        <Navbar />
+      {correctNetwork ? (
+        <>
+          <Popup />
+          <div>
+            <Navbar />
 
-        <main className="exchange grid">
-          <section className="exchange__section--left grid">
-            <Markets />
-            <Balance />
-            <Order />
-          </section>
-          <section className="exchange__section--right grid">
-            <PriceChart />
-            <Transactions />
-            <Trades />
-            <OrderBook />
-          </section>
-        </main>
+            <main className="exchange grid">
+              <section className="exchange__section--left grid">
+                <Markets />
+                <Balance />
+                <Order />
+              </section>
+              <section className="exchange__section--right grid">
+                <PriceChart />
+                <Transactions />
+                <Trades />
+                <OrderBook />
+              </section>
+            </main>
 
-        <Alert />
-      </div>
+            <Alert />
+          </div>
+        </>
+      ) : (
+        <div>
+          <h1
+            style={{
+              color: "red",
+            }}
+          >
+            The exchange is supported on Goerli and Sepolia Testnets, please
+            change and reload the page.
+          </h1>
+        </div>
+      )}
     </>
   );
 }

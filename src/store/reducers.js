@@ -1,8 +1,10 @@
 import { orderIdDoesNotExist } from "./interactions";
+import { ACCEPTED_NETWORKS } from "./interactions";
 
 const DEFAULT_PROVIDER_STATE = {
   connection: null,
   chainId: null,
+  correctNetwork: false,
   account: null,
 };
 export const provider = (state = DEFAULT_PROVIDER_STATE, action) => {
@@ -15,6 +17,7 @@ export const provider = (state = DEFAULT_PROVIDER_STATE, action) => {
     case "NETWORK_LOADED":
       return {
         ...state,
+        correctNetwork: ACCEPTED_NETWORKS.includes(String(action.chainId)),
         chainId: action.chainId,
       };
     case "ACCOUNT_LOADED":
@@ -26,6 +29,11 @@ export const provider = (state = DEFAULT_PROVIDER_STATE, action) => {
       return {
         ...state,
         balance: action.balance,
+      };
+    case "RIGHT_NETWORK_SELECTED":
+      return {
+        ...state,
+        correctNetwork: true,
       };
     default:
       return state;
